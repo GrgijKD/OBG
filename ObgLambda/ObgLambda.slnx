@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="../ObgServices/ObgServices/ObgServices.csproj" />
+  <Project Path="ObgFunctions/ObgLambda.csproj" />
+</Solution>
