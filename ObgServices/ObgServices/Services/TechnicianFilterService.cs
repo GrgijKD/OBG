@@ -4,7 +4,7 @@ namespace ObgServices.Services
 {
     public class TechnicianFilterService
     {
-        public bool ValidateHardConstraints(Technician tech, ServiceSite site, Service service)
+        public static bool ValidateHardConstraints(Technician tech, ServiceSite site, Service service)
         {
             // Допуск та громадянство
             if (site.SecurityClearedTechIds.Count != 0 && !site.SecurityClearedTechIds.Contains(tech.Id))

@@ -5,7 +5,7 @@ namespace ObgServices.Services
     {
         private const double AverageSpeed = 40.0; // Середня швидкість для розрахунку часу, км/год
 
-        public RoutingDataModel CreateModel(List<Technician> techs, List<ServiceSite> sites)
+        public static RoutingDataModel CreateModel(List<Technician> techs, List<ServiceSite> sites)
         {
             var allLocations = new List<AddressInfo> { techs[0].StartLocation };
             allLocations.AddRange(sites.Select(s => s.Coordinates!));

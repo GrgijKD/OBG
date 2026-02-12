@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ObgLambda")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e59551570ed9fc644b9ff6673930b26cfae6c494")]
 [assembly: System.Reflection.AssemblyProductAttribute("ObgLambda")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ObgLambda")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -2425,11 +2425,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\User\\Загрузки\\Универ\\Практика\\ObgLambda\\ObgLambda\\ObgLambda.csproj",
+      "projectUniqueName": "C:\\Users\\User\\Загрузки\\Универ\\OBG\\ObgLambda\\ObgLambda\\ObgLambda.csproj",
       "projectName": "ObgLambda",
-      "projectPath": "C:\\Users\\User\\Загрузки\\Универ\\Практика\\ObgLambda\\ObgLambda\\ObgLambda.csproj",
+      "projectPath": "C:\\Users\\User\\Загрузки\\Универ\\OBG\\ObgLambda\\ObgLambda\\ObgLambda.csproj",
       "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\User\\Загрузки\\Универ\\Практика\\ObgLambda\\ObgLambda\\obj\\",
+      "outputPath": "C:\\Users\\User\\Загрузки\\Универ\\OBG\\ObgLambda\\ObgLambda\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -2450,8 +2450,8 @@
         "net10.0": {
           "targetAlias": "net10.0",
           "projectReferences": {
-            "C:\\Users\\User\\Загрузки\\Универ\\Практика\\ObgServices\\ObgServices\\ObgServices.csproj": {
-              "projectPath": "C:\\Users\\User\\Загрузки\\Универ\\Практика\\ObgServices\\ObgServices\\ObgServices.csproj"
+            "C:\\Users\\User\\Загрузки\\Универ\\OBG\\ObgServices\\ObgServices\\ObgServices.csproj": {
+              "projectPath": "C:\\Users\\User\\Загрузки\\Универ\\OBG\\ObgServices\\ObgServices\\ObgServices.csproj"
             }
           }
         }
@@ -2495,7 +2495,11 @@
         "downloadDependencies": [
           {
             "name": "Microsoft.NETCore.App.Crossgen2.win-x64",
-            "version": "[10.0.2, 10.0.2]"
+            "version": "[10.0.3, 10.0.3]"
+          },
+          {
+            "name": "Microsoft.WindowsDesktop.App.Ref",
+            "version": "[10.0.3, 10.0.3]"
           }
         ],
         "frameworkReferences": {
@@ -2503,7 +2507,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.102/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.CSharp": "(,4.7.32767]",
           "Microsoft.VisualBasic": "(,10.4.32767]",
