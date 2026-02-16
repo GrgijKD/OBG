@@ -1,4 +1,5 @@
 using Amazon.Lambda.Core;
+using Amazon.LocationService;
 using ObgServices.Models;
 using ObgServices.Services;
 
@@ -8,18 +9,18 @@ namespace ObgLambda;
 
 public class Function
 {
-    public static List<OptimizedRoute> FunctionHandler(RoutingRequest request, ILambdaContext context)
+    private readonly AmazonLocationServiceClient _locationClient = new();
+
+    public async Task<List<OptimizedRoute>> FunctionHandler(RoutingRequest request, ILambdaContext context)
     {
         context.Logger.LogLine("Початок процесу оптимізації маршрутів");
+        var geocodingService = new GeocodingService(_locationClient);
 
         // Фільтрація техніків за жорсткими обмеженнями
         var qualifiedTechs = request.Technicians
-        .Where(t => request.Sites.Any(site =>
-            site.Services.Any(service =>
-                TechnicianFilterService.ValidateHardConstraints(t, site, service)
+        .Where(t => request.Sites.Any(site => TechnicianFilterService.ValidateHardConstraints(t, site)
             )
-        ))
-        .ToList();
+        ).ToList();
 
         if (qualifiedTechs.Count == 0)
         {
@@ -28,7 +29,7 @@ public class Function
         }
 
         // Побудова моделі даних (матриці відстаней та часу)
-        var routingData = RoutingDataFactory.CreateModel(qualifiedTechs, request.Sites);
+        var routingData = await RoutingDataFactory.CreateModel(qualifiedTechs, request.Sites, geocodingService);
 
         // Google OR-Tools для пошуку рішення
         context.Logger.LogLine("Запуск Google OR-Tools...");

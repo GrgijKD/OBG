@@ -1,8 +1,7 @@
 ﻿namespace ObgServices.Models
 {
-    public enum SkillLevel { Junior, Medior, Senior }
-    public enum JobType { Interior, Exterior, Floral }
-    public enum PhysicalStrain { Light, Medium, Hard }
+    public enum Skill { Interior, Exterior, Floral }
+    public enum SkillLevel { None, Junior, Medior, Senior }
 
     public class TimeWindow
     {

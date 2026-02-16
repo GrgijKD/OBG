@@ -7,7 +7,7 @@ namespace ObgServices.Services
     {
         public static List<OptimizedRoute> SolveRouting(RoutingDataModel data, List<Technician> techs, List<ServiceSite> sites)
         {
-            RoutingIndexManager manager = new(data.DistanceMatrix.GetLength(0), data.VehicleCount, data.Depot);
+            RoutingIndexManager manager = new(data.DistanceMatrix.GetLength(0), data.VehicleCount, data.Office);
             RoutingModel routing = new(manager);
 
             // Жорстка фільтрація техніків
@@ -16,15 +16,15 @@ namespace ObgServices.Services
                 var site = sites[i - 1];
                 long nodeIndex = manager.NodeToIndex(i);
 
-                var allowedVehicleIndices = new List<long>();
+                var allowedTechIndixes = new List<long>();
                 for (int t = 0; t < techs.Count; t++)
                 {
-                    if (TechnicianFilterService.ValidateHardConstraints(techs[t], site, site.Services.First()))
+                    if (TechnicianFilterService.ValidateHardConstraints(techs[t], site))
                     {
-                        allowedVehicleIndices.Add(t);
+                        allowedTechIndixes.Add(t);
                     }
                 }
-                routing.VehicleVar(nodeIndex).SetValues(allowedVehicleIndices.ToArray());
+                routing.VehicleVar(nodeIndex).SetValues([.. allowedTechIndixes]);
 
                 // Можливість пропуску якщо немає техніка або технік не встигає у часове вікно
                 routing.AddDisjunction([nodeIndex], 10000);
@@ -67,7 +67,7 @@ namespace ObgServices.Services
                 }
             }
 
-            // Simulated Annealing
+            // Пошук рішення
             RoutingSearchParameters searchParameters = operations_research_constraint_solver.DefaultRoutingSearchParameters();
             searchParameters.FirstSolutionStrategy = FirstSolutionStrategy.Types.Value.PathCheapestArc;
             searchParameters.LocalSearchMetaheuristic = LocalSearchMetaheuristic.Types.Value.SimulatedAnnealing;

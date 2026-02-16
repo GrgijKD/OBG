@@ -4,31 +4,50 @@ namespace ObgServices.Services
 {
     public class TechnicianFilterService
     {
-        public static bool ValidateHardConstraints(Technician tech, ServiceSite site, Service service)
+        public static bool ValidateHardConstraints(Technician tech, ServiceSite site)
         {
-            // Допуск та громадянство
-            if (site.SecurityClearedTechIds.Count != 0 && !site.SecurityClearedTechIds.Contains(tech.Id))
-                return false;
+            // Рівень кваліфікації
+            bool isQualified = site.RequiredSkill switch
+            {
+                Skill.Interior => tech.InteriorLevel >= site.RequiredSkillLevel,
+
+                Skill.Exterior => tech.ExteriorLevel >= site.RequiredSkillLevel,
+
+                Skill.Floral => tech.FloralLevel >= site.RequiredSkillLevel,
+
+                _ => false // Невідомий тип сервісу - невалідний
+            };
+
+            // Допуск
+            if (site.PermittedTechIds.Count != 0 && !site.PermittedTechIds.Contains(tech.Id))
+                isQualified = false;
+
+            // Громадянство
             if (site.RequiresCitizenship && !tech.HasCitizenship)
-                return false;
+                isQualified = false;
+            
+            // Навички та сертифікати
+            if (site.RequiresGreenWallSkills && !tech.HasLivingWallsSkills)
+                isQualified = false;
 
-            // Кваліфікація
-            if (tech.Level < site.RequiredSkillLevel)
-                return false;
-            if (site.RequiresGreenWallSkills && !tech.HasGreenWallsSkills)
-                return false;
-            if (site.RequiresHighAltitudeWork && !tech.CanWorkHighAltitude)
-                return false;
+            if (site.RequiresPesticide && !tech.PesticideCertificated)
+                isQualified = false;
 
-            // Фізичне навнтаження
-            if (tech.MaxPhysicalStrain < site.PhysicalExertionLevel)
-                return false;
+            if (site.RequiresWorkAtHeights && !tech.CanWorkAtHeights)
+                isQualified = false;
 
-            // Перевищення ліміту годин на тиждень
-            if (tech.CurrentScheduledHours + (service.ServiceDurationMinutes / 60.0) > tech.MaxWeeklyHours)
-                return false;
+            if (site.RequiresUsingLift && !tech.CertifiedUsingLift)
+                isQualified = false;
 
-            return true;
+            if (site.RequiresPhysicallyDemandingJob && !tech.CanPhysicallyDemandingJob)
+                isQualified = false;
+
+            // Ліміт робочих годин
+            double estimatedTotalHours = tech.CurrentScheduledHours + (site.VisitDuration / 60.0);
+            if (estimatedTotalHours > tech.MaxWeeklyHours)
+                isQualified = false;
+
+            return isQualified;
         }
     }
 }

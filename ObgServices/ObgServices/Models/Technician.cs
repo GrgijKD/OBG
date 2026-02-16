@@ -12,11 +12,15 @@
         public int MaxWeeklyHours { get; set; }
         public double CurrentScheduledHours { get; set; }
 
-        public SkillLevel Level { get; set; }
-        public List<JobType> Skills { get; set; } = [];
-        public bool HasGreenWallsSkills { get; set; }
-        public bool CanWorkHighAltitude { get; set; }
-        public PhysicalStrain MaxPhysicalStrain { get; set; }
+        public SkillLevel InteriorLevel { get; set; }
+        public SkillLevel ExteriorLevel { get; set; }
+        public SkillLevel FloralLevel { get; set; }
+
+        public bool HasLivingWallsSkills { get; set; }
+        public bool PesticideCertificated { get; set; }
+        public bool CanWorkAtHeights { get; set; }
+        public bool CanPhysicallyDemandingJob { get; set; }
+        public bool CertifiedUsingLift { get; set; }
         public bool HasCitizenship { get; set; }
     }
 }

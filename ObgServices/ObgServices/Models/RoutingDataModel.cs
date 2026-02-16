@@ -7,6 +7,6 @@
         public required long[][] TimeWindows { get; set; }
         public required long[] ServiceDurations { get; set; }
         public int VehicleCount { get; set; }
-        public int Depot { get; set; } = 0;
+        public int Office { get; set; } = 0;
     }
 }

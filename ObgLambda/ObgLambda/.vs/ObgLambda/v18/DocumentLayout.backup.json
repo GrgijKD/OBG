@@ -3,20 +3,35 @@
   "WorkspaceRootPath": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgLambda\\ObgLambda\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{ABA500B0-15CD-D540-F197-6D0C2D59414B}|..\\..\\ObgServices\\ObgServices\\ObgServices.csproj|c:\\users\\user\\\u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0443\u043D\u0438\u0432\u0435\u0440\\obg\\obgservices\\obgservices\\services\\routingsolverservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{ABA500B0-15CD-D540-F197-6D0C2D59414B}|..\\..\\ObgServices\\ObgServices\\ObgServices.csproj|c:\\users\\user\\\u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0443\u043D\u0438\u0432\u0435\u0440\\obg\\obgservices\\obgservices\\services\\routingdatafactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{ABA500B0-15CD-D540-F197-6D0C2D59414B}|..\\..\\ObgServices\\ObgServices\\ObgServices.csproj|c:\\users\\user\\\u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0443\u043D\u0438\u0432\u0435\u0440\\obg\\obgservices\\obgservices\\models\\routingdatamodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{ABA500B0-15CD-D540-F197-6D0C2D59414B}|..\\..\\ObgServices\\ObgServices\\ObgServices.csproj|c:\\users\\user\\\u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0443\u043D\u0438\u0432\u0435\u0440\\obg\\obgservices\\obgservices\\services\\technicianfilterservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{74E44CF5-FDB5-B379-7B5B-95CB30ECC4D3}|ObgLambda.csproj|c:\\users\\user\\\u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0443\u043D\u0438\u0432\u0435\u0440\\obg\\obglambda\\obglambda\\function.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{74E44CF5-FDB5-B379-7B5B-95CB30ECC4D3}|ObgLambda.csproj|solutionrelative:function.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ABA500B0-15CD-D540-F197-6D0C2D59414B}|..\\..\\ObgServices\\ObgServices\\ObgServices.csproj|c:\\users\\user\\\u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0443\u043D\u0438\u0432\u0435\u0440\\obg\\obgservices\\obgservices\\services\\routingsolverservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ABA500B0-15CD-D540-F197-6D0C2D59414B}|..\\..\\ObgServices\\ObgServices\\ObgServices.csproj|c:\\users\\user\\\u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0443\u043D\u0438\u0432\u0435\u0440\\obg\\obgservices\\obgservices\\models\\technician.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ABA500B0-15CD-D540-F197-6D0C2D59414B}|..\\..\\ObgServices\\ObgServices\\ObgServices.csproj|c:\\users\\user\\\u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0443\u043D\u0438\u0432\u0435\u0440\\obg\\obgservices\\obgservices\\services\\routingdatafactory.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ABA500B0-15CD-D540-F197-6D0C2D59414B}|..\\..\\ObgServices\\ObgServices\\ObgServices.csproj|c:\\users\\user\\\u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0443\u043D\u0438\u0432\u0435\u0440\\obg\\obgservices\\obgservices\\models\\servicesite.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ABA500B0-15CD-D540-F197-6D0C2D59414B}|..\\..\\ObgServices\\ObgServices\\ObgServices.csproj|c:\\users\\user\\\u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0443\u043D\u0438\u0432\u0435\u0440\\obg\\obgservices\\obgservices\\models\\routingdatamodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ABA500B0-15CD-D540-F197-6D0C2D59414B}|..\\..\\ObgServices\\ObgServices\\ObgServices.csproj|c:\\users\\user\\\u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0443\u043D\u0438\u0432\u0435\u0440\\obg\\obgservices\\obgservices\\services\\geocodingservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ABA500B0-15CD-D540-F197-6D0C2D59414B}|..\\..\\ObgServices\\ObgServices\\ObgServices.csproj|c:\\users\\user\\\u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0443\u043D\u0438\u0432\u0435\u0440\\obg\\obgservices\\obgservices\\models\\enums.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{ABA500B0-15CD-D540-F197-6D0C2D59414B}|..\\..\\ObgServices\\ObgServices\\ObgServices.csproj|c:\\users\\user\\\u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0443\u043D\u0438\u0432\u0435\u0440\\obg\\obgservices\\obgservices\\services\\geodistanceservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,67 +45,132 @@
           "Children": [
             {
               "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ServiceSite.cs",
+              "DocumentMoniker": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Models\\ServiceSite.cs",
+              "RelativeDocumentMoniker": "..\\..\\ObgServices\\ObgServices\\Models\\ServiceSite.cs",
+              "ToolTip": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Models\\ServiceSite.cs",
+              "RelativeToolTip": "..\\..\\ObgServices\\ObgServices\\Models\\ServiceSite.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAA/wBoAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-16T14:31:09.743Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Technician.cs",
+              "DocumentMoniker": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Models\\Technician.cs",
+              "RelativeDocumentMoniker": "..\\..\\ObgServices\\ObgServices\\Models\\Technician.cs",
+              "ToolTip": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Models\\Technician.cs",
+              "RelativeToolTip": "..\\..\\ObgServices\\ObgServices\\Models\\Technician.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-16T14:22:32.135Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Function.cs",
+              "DocumentMoniker": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgLambda\\ObgLambda\\Function.cs",
+              "RelativeDocumentMoniker": "Function.cs",
+              "ToolTip": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgLambda\\ObgLambda\\Function.cs",
+              "RelativeToolTip": "Function.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAAwA0AAAA7AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-16T16:11:49.224Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "TechnicianFilterService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Services\\TechnicianFilterService.cs",
+              "RelativeDocumentMoniker": "..\\..\\ObgServices\\ObgServices\\Services\\TechnicianFilterService.cs",
+              "ToolTip": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Services\\TechnicianFilterService.cs",
+              "RelativeToolTip": "..\\..\\ObgServices\\ObgServices\\Services\\TechnicianFilterService.cs",
+              "ViewState": "AgIAACIAAAAAAAAAAAAQwC0AAABgAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-16T14:20:38.057Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 2,
+              "Title": "RoutingSolverService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Services\\RoutingSolverService.cs",
+              "RelativeDocumentMoniker": "..\\..\\ObgServices\\ObgServices\\Services\\RoutingSolverService.cs",
+              "ToolTip": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Services\\RoutingSolverService.cs",
+              "RelativeToolTip": "..\\..\\ObgServices\\ObgServices\\Services\\RoutingSolverService.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAABIAAAAfAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-16T14:20:37.258Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "RoutingDataFactory.cs",
+              "DocumentMoniker": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Services\\RoutingDataFactory.cs",
+              "RelativeDocumentMoniker": "..\\..\\ObgServices\\ObgServices\\Services\\RoutingDataFactory.cs",
+              "ToolTip": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Services\\RoutingDataFactory.cs",
+              "RelativeToolTip": "..\\..\\ObgServices\\ObgServices\\Services\\RoutingDataFactory.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-16T14:20:36.313Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
               "Title": "RoutingDataModel.cs",
               "DocumentMoniker": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Models\\RoutingDataModel.cs",
               "RelativeDocumentMoniker": "..\\..\\ObgServices\\ObgServices\\Models\\RoutingDataModel.cs",
               "ToolTip": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Models\\RoutingDataModel.cs",
               "RelativeToolTip": "..\\..\\ObgServices\\ObgServices\\Models\\RoutingDataModel.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAYAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-02-12T15:29:04.319Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "RoutingDataFactory.cs",
-              "DocumentMoniker": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Services\\RoutingDataFactory.cs",
-              "RelativeDocumentMoniker": "..\\..\\ObgServices\\ObgServices\\Services\\RoutingDataFactory.cs",
-              "ToolTip": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Services\\RoutingDataFactory.cs",
-              "RelativeToolTip": "..\\..\\ObgServices\\ObgServices\\Services\\RoutingDataFactory.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAEYAAAAVAAAAAAAAAA==",
+              "DocumentIndex": 8,
+              "Title": "Enums.cs",
+              "DocumentMoniker": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Models\\Enums.cs",
+              "RelativeDocumentMoniker": "..\\..\\ObgServices\\ObgServices\\Models\\Enums.cs",
+              "ToolTip": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Models\\Enums.cs",
+              "RelativeToolTip": "..\\..\\ObgServices\\ObgServices\\Models\\Enums.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAA7AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-12T15:27:05.574Z",
+              "WhenOpened": "2026-02-16T14:53:18.927Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "TechnicianFilterService.cs",
-              "DocumentMoniker": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Services\\TechnicianFilterService.cs",
-              "RelativeDocumentMoniker": "..\\..\\ObgServices\\ObgServices\\Services\\TechnicianFilterService.cs",
-              "ToolTip": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Services\\TechnicianFilterService.cs",
-              "RelativeToolTip": "..\\..\\ObgServices\\ObgServices\\Services\\TechnicianFilterService.cs",
-              "ViewState": "AgIAAA0AAAAAAAAAAAAQwAYAAAAVAAAAAAAAAA==",
+              "DocumentIndex": 7,
+              "Title": "GeocodingService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Services\\GeocodingService.cs",
+              "RelativeDocumentMoniker": "..\\..\\ObgServices\\ObgServices\\Services\\GeocodingService.cs",
+              "ToolTip": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Services\\GeocodingService.cs",
+              "RelativeToolTip": "..\\..\\ObgServices\\ObgServices\\Services\\GeocodingService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAuwAwAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-12T15:16:56.993Z",
+              "WhenOpened": "2026-02-16T14:20:35.364Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "RoutingSolverService.cs",
-              "DocumentMoniker": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Services\\RoutingSolverService.cs",
-              "RelativeDocumentMoniker": "..\\..\\ObgServices\\ObgServices\\Services\\RoutingSolverService.cs",
-              "ToolTip": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Services\\RoutingSolverService.cs",
-              "RelativeToolTip": "..\\..\\ObgServices\\ObgServices\\Services\\RoutingSolverService.cs",
-              "ViewState": "AgIAAAsAAAAAAAAAAAAAAAwAAAAqAAAAAAAAAA==",
+              "DocumentIndex": 9,
+              "Title": "GeoDistanceService.cs",
+              "DocumentMoniker": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Services\\GeoDistanceService.cs",
+              "RelativeDocumentMoniker": "..\\..\\ObgServices\\ObgServices\\Services\\GeoDistanceService.cs",
+              "ToolTip": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgServices\\ObgServices\\Services\\GeoDistanceService.cs",
+              "RelativeToolTip": "..\\..\\ObgServices\\ObgServices\\Services\\GeoDistanceService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-12T15:16:29.429Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "Function.cs",
-              "DocumentMoniker": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgLambda\\ObgLambda\\Function.cs",
-              "RelativeDocumentMoniker": "Function.cs",
-              "ToolTip": "C:\\Users\\User\\\u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0438\\\u0423\u043D\u0438\u0432\u0435\u0440\\OBG\\ObgLambda\\ObgLambda\\Function.cs",
-              "RelativeToolTip": "Function.cs",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAQwAkAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-09T15:51:45.343Z",
+              "WhenOpened": "2026-02-16T14:20:34.547Z",
               "EditorCaption": ""
             }
           ]

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ObgServices")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e59551570ed9fc644b9ff6673930b26cfae6c494")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4a8d68a9aac5a6a3663848d66304e81095f46a7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("ObgServices")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ObgServices")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
