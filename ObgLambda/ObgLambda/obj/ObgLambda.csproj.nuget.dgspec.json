@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\User\\Загрузки\\Универ\\OBG\\ObgLambda\\ObgLambda\\ObgLambda.csproj": {}
+    "C:\\Users\\Andrewfour\\source\\repos\\OBG\\ObgLambda\\ObgLambda\\ObgLambda.csproj": {}
   },
   "projects": {
-    "C:\\Users\\User\\Загрузки\\Универ\\OBG\\ObgLambda\\ObgLambda\\ObgLambda.csproj": {
+    "C:\\Users\\Andrewfour\\source\\repos\\OBG\\ObgLambda\\ObgLambda\\ObgLambda.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\User\\Загрузки\\Универ\\OBG\\ObgLambda\\ObgLambda\\ObgLambda.csproj",
+        "projectUniqueName": "C:\\Users\\Andrewfour\\source\\repos\\OBG\\ObgLambda\\ObgLambda\\ObgLambda.csproj",
         "projectName": "ObgLambda",
-        "projectPath": "C:\\Users\\User\\Загрузки\\Универ\\OBG\\ObgLambda\\ObgLambda\\ObgLambda.csproj",
-        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\User\\Загрузки\\Универ\\OBG\\ObgLambda\\ObgLambda\\obj\\",
+        "projectPath": "C:\\Users\\Andrewfour\\source\\repos\\OBG\\ObgLambda\\ObgLambda\\ObgLambda.csproj",
+        "packagesPath": "C:\\Users\\Andrewfour\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Andrewfour\\source\\repos\\OBG\\ObgLambda\\ObgLambda\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Andrewfour\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -32,8 +32,8 @@
           "net10.0": {
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Users\\User\\Загрузки\\Универ\\OBG\\ObgServices\\ObgServices\\ObgServices.csproj": {
-                "projectPath": "C:\\Users\\User\\Загрузки\\Универ\\OBG\\ObgServices\\ObgServices\\ObgServices.csproj"
+              "C:\\Users\\Andrewfour\\source\\repos\\OBG\\ObgServices\\ObgServices\\ObgServices.csproj": {
+                "projectPath": "C:\\Users\\Andrewfour\\source\\repos\\OBG\\ObgServices\\ObgServices\\ObgServices.csproj"
               }
             }
           }
@@ -61,6 +61,10 @@
             "Amazon.Lambda.Serialization.SystemTextJson": {
               "target": "Package",
               "version": "[2.4.4, )"
+            },
+            "ClosedXML": {
+              "target": "Package",
+              "version": "[0.105.0, )"
             }
           },
           "imports": [
@@ -363,20 +367,20 @@
         }
       }
     },
-    "C:\\Users\\User\\Загрузки\\Универ\\OBG\\ObgServices\\ObgServices\\ObgServices.csproj": {
+    "C:\\Users\\Andrewfour\\source\\repos\\OBG\\ObgServices\\ObgServices\\ObgServices.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\User\\Загрузки\\Универ\\OBG\\ObgServices\\ObgServices\\ObgServices.csproj",
+        "projectUniqueName": "C:\\Users\\Andrewfour\\source\\repos\\OBG\\ObgServices\\ObgServices\\ObgServices.csproj",
         "projectName": "ObgServices",
-        "projectPath": "C:\\Users\\User\\Загрузки\\Универ\\OBG\\ObgServices\\ObgServices\\ObgServices.csproj",
-        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\User\\Загрузки\\Универ\\OBG\\ObgServices\\ObgServices\\obj\\",
+        "projectPath": "C:\\Users\\Andrewfour\\source\\repos\\OBG\\ObgServices\\ObgServices\\ObgServices.csproj",
+        "packagesPath": "C:\\Users\\Andrewfour\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Andrewfour\\source\\repos\\OBG\\ObgServices\\ObgServices\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Andrewfour\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],

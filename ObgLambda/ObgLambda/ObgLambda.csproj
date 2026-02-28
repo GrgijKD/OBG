@@ -13,8 +13,18 @@
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.Core" Version="2.8.0" />
     <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.4" />
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ObgServices\ObgServices\ObgServices.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- Пакуємо файли з кореневої папки input у артефакт Lambda ( /var/task/input ) -->
+    <Content Include="..\..\input\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>input\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Content>
+  </ItemGroup>
+
 </Project>

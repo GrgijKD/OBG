@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\User\\Загрузки\\Универ\\OBG\\ObgServices\\ObgServices\\ObgServices.csproj": {}
+    "C:\\Users\\Andrewfour\\source\\repos\\OBG\\ObgServices\\ObgServices\\ObgServices.csproj": {}
   },
   "projects": {
-    "C:\\Users\\User\\Загрузки\\Универ\\OBG\\ObgServices\\ObgServices\\ObgServices.csproj": {
+    "C:\\Users\\Andrewfour\\source\\repos\\OBG\\ObgServices\\ObgServices\\ObgServices.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\User\\Загрузки\\Универ\\OBG\\ObgServices\\ObgServices\\ObgServices.csproj",
+        "projectUniqueName": "C:\\Users\\Andrewfour\\source\\repos\\OBG\\ObgServices\\ObgServices\\ObgServices.csproj",
         "projectName": "ObgServices",
-        "projectPath": "C:\\Users\\User\\Загрузки\\Универ\\OBG\\ObgServices\\ObgServices\\ObgServices.csproj",
-        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\User\\Загрузки\\Универ\\OBG\\ObgServices\\ObgServices\\obj\\",
+        "projectPath": "C:\\Users\\Andrewfour\\source\\repos\\OBG\\ObgServices\\ObgServices\\ObgServices.csproj",
+        "packagesPath": "C:\\Users\\Andrewfour\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Andrewfour\\source\\repos\\OBG\\ObgServices\\ObgServices\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Andrewfour\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
