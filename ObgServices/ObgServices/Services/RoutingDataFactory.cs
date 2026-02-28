@@ -13,10 +13,33 @@ namespace ObgServices.Services
             GeocodingService geocodingService)
         {
             // Отримуємо координати всіх локацій через GeocodingService
+            // Точка старту техніка (офіс) у поточній реалізації береться як StartLocation першого техніка.
+            // Якщо координати не задані (0,0), пробуємо визначити їх через геокодування за FullAddress / City+Zip.
+            var office = techs[0].StartLocation;
+
+            if ((office.Latitude == 0 && office.Longitude == 0))
+            {
+                string? officeQuery = !string.IsNullOrWhiteSpace(office.FullAddress)
+                    ? office.FullAddress
+                    : string.Join(" ", new[] { office.City, office.ZipCode }.Where(s => !string.IsNullOrWhiteSpace(s)));
+
+                if (!string.IsNullOrWhiteSpace(officeQuery))
+                {
+                    var officeCoords = await geocodingService.GetCoordinatesFromAddress(officeQuery)
+                        ?? throw new Exception($"Не вдалося визначити координати для офісу/старту техніка: {officeQuery}");
+
+                    office.Latitude = officeCoords.Latitude;
+                    office.Longitude = officeCoords.Longitude;
+                    office.City = officeCoords.City;
+                    office.ZipCode = officeCoords.ZipCode;
+                    office.FullAddress ??= officeQuery;
+                }
+            }
+
             var allLocations = new List<AddressInfo>
             {
                 // Точка старту техніка
-                techs[0].StartLocation
+                office
             };
 
             foreach (var site in sites)

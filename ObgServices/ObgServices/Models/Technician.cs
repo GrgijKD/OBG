@@ -5,6 +5,19 @@
         public required string Id { get; set; }
         public required string Name { get; set; }
 
+
+        public string? HomeAddressRaw { get; set; }
+        public string? OfficeAddressRaw { get; set; }
+
+        public StartFinishPoint StartsFrom { get; set; } = StartFinishPoint.Unknown;
+        public StartFinishPoint FinishesAt { get; set; } = StartFinishPoint.Unknown;
+
+        public int? MinBreakMinutes { get; set; }
+        public TimeSpan? BreakNotEarlierThan { get; set; }
+        public TimeSpan? BreakNotLaterThan { get; set; }
+
+        public int? MaxDailyServiceHours { get; set; }
+
         public required AddressInfo StartLocation { get; set; }
         public required AddressInfo EndLocation { get; set; }
 

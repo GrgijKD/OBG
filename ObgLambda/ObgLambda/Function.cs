@@ -1,5 +1,6 @@
 using Amazon.Lambda.Core;
 using Amazon.LocationService;
+using ObgLambda.Excel;
 using ObgServices.Models;
 using ObgServices.Services;
 
@@ -13,35 +14,72 @@ public class Function
 
     public async Task<List<OptimizedRoute>> FunctionHandler(RoutingRequest request, ILambdaContext context)
     {
-        context.Logger.LogLine("Ïî÷àòîê ïðîöåñó îïòèì³çàö³¿ ìàðøðóò³â");
+        // Excel-input mode (default ON). If Excel is missing, we DO NOT fall back to JSON input.
+        if (UseExcelInput())
+        {
+            var excel = ExcelInputLoader.TryLoadFirstExcel(context.Logger);
+
+            if (excel is null)
+            {
+                context.Logger.LogLine("Excel input Ð½Ðµ Ð·Ð½Ð°Ð¹Ð´ÐµÐ½Ð¾ Ð² Ð¿Ð°Ð¿Ñ†Ñ– 'input'. JSON Ð· Ð¿Ð¾Ð»Ñ Ñ–Ð³Ð½Ð¾Ñ€ÑƒÑ”Ñ‚ÑŒÑÑ (Ð¿Ð¾ÐºÐ¸ Ñ‰Ð¾).");
+                return [];
+            }
+
+            try
+            {
+                context.Logger.LogLine($"Excel input Ð·Ð½Ð°Ð¹Ð´ÐµÐ½Ð¾: '{excel.FileName}' ({excel.Content.Length} bytes). ÐŸÐ¾Ñ‡Ð¸Ð½Ð°ÑŽ Ð¿Ð°Ñ€ÑÐ¸Ð½Ð³...");
+
+                // Ignore JSON payload; build RoutingRequest from Excel
+                request = ExcelRoutingRequestParser.Parse(excel.Content, excel.FileName, context.Logger);
+
+                context.Logger.LogLine($"Excel Ð¿Ð°Ñ€ÑÐ¸Ð½Ð³ Ð·Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð¾: Technicians={request.Technicians.Count}, Sites={request.Sites.Count}");
+            }
+            catch (Exception ex)
+            {
+                // Do not fail and do not use JSON either
+                context.Logger.LogLine($"ÐÐµ Ð²Ð´Ð°Ð»Ð¾ÑÑ Ñ€Ð¾Ð·Ð¿Ð°Ñ€ÑÐ¸Ñ‚Ð¸ Excel '{excel.FileName}'. {ex}");
+                return [];
+            }
+        }
+
+        // Existing routing flow (works both for JSON input and for parsed Excel input)
+        context.Logger.LogLine("ÐŸÐ¾Ñ‡Ð°Ñ‚Ð¾Ðº Ð¿Ñ€Ð¾Ñ†ÐµÑÑƒ Ð¾Ð¿Ñ‚Ð¸Ð¼Ñ–Ð·Ð°Ñ†Ñ–Ñ— Ð¼Ð°Ñ€ÑˆÑ€ÑƒÑ‚Ñ–Ð²");
         var geocodingService = new GeocodingService(_locationClient);
 
-        // Ô³ëüòðàö³ÿ òåõí³ê³â çà æîðñòêèìè îáìåæåííÿìè
+        // Ð¤Ñ–Ð»ÑŒÑ‚Ñ€Ð°Ñ†Ñ–Ñ Ñ‚ÐµÑ…Ð½Ñ–ÐºÑ–Ð² Ð·Ð° Ð¶Ð¾Ñ€ÑÑ‚ÐºÐ¸Ð¼Ð¸ Ð¾Ð±Ð¼ÐµÐ¶ÐµÐ½Ð½ÑÐ¼Ð¸
         var qualifiedTechs = request.Technicians
-        .Where(t => request.Sites.Any(site => TechnicianFilterService.ValidateHardConstraints(t, site)
-            )
-        ).ToList();
+            .Where(t => request.Sites.Any(site => TechnicianFilterService.ValidateHardConstraints(t, site)))
+            .ToList();
 
         if (qualifiedTechs.Count == 0)
         {
-            context.Logger.LogLine("Íå çíàéäåíî òåõí³ê³â äëÿ äàíèõ ëîêàö³é");
+            context.Logger.LogLine("ÐÐµ Ð·Ð½Ð°Ð¹Ð´ÐµÐ½Ð¾ Ñ‚ÐµÑ…Ð½Ñ–ÐºÑ–Ð² Ð´Ð»Ñ Ð´Ð°Ð½Ð¸Ñ… Ð»Ð¾ÐºÐ°Ñ†Ñ–Ð¹");
             return [];
         }
 
-        // Ïîáóäîâà ìîäåë³ äàíèõ (ìàòðèö³ â³äñòàíåé òà ÷àñó)
+        // ÐŸÐ¾Ð±ÑƒÐ´Ð¾Ð²Ð° Ð¼Ð¾Ð´ÐµÐ»Ñ– Ð´Ð°Ð½Ð¸Ñ… (Ð¼Ð°Ñ‚Ñ€Ð¸Ñ†Ñ– Ð²Ñ–Ð´ÑÑ‚Ð°Ð½ÐµÐ¹ Ñ‚Ð° Ñ‡Ð°ÑÑƒ)
         var routingData = await RoutingDataFactory.CreateModel(qualifiedTechs, request.Sites, geocodingService);
 
-        // Google OR-Tools äëÿ ïîøóêó ð³øåííÿ
-        context.Logger.LogLine("Çàïóñê Google OR-Tools...");
+        // Google OR-Tools Ð´Ð»Ñ Ð¿Ð¾ÑˆÑƒÐºÑƒ Ñ€Ñ–ÑˆÐµÐ½Ð½Ñ
+        context.Logger.LogLine("Ð—Ð°Ð¿ÑƒÑÐº Google OR-Tools...");
         var resultRoutes = RoutingSolverService.SolveRouting(routingData, qualifiedTechs, request.Sites);
 
-        context.Logger.LogLine($"Îïòèì³çàö³ÿ çàâåðøåíà. Ñôîðìîâàíî ìàðøðóò³â: {resultRoutes.Count}");
-
+        context.Logger.LogLine($"ÐžÐ¿Ñ‚Ð¸Ð¼Ñ–Ð·Ð°Ñ†Ñ–Ñ Ð·Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð°. Ð¡Ñ„Ð¾Ñ€Ð¼Ð¾Ð²Ð°Ð½Ð¾ Ð¼Ð°Ñ€ÑˆÑ€ÑƒÑ‚Ñ–Ð²: {resultRoutes.Count}");
         return resultRoutes;
+    }
+
+    private static bool UseExcelInput()
+    {
+        var raw = Environment.GetEnvironmentVariable("OBG_USE_EXCEL_INPUT");
+
+        // Default: true. Turn off with: false/0/no
+        return !string.Equals(raw, "false", StringComparison.OrdinalIgnoreCase)
+               && !string.Equals(raw, "0", StringComparison.OrdinalIgnoreCase)
+               && !string.Equals(raw, "no", StringComparison.OrdinalIgnoreCase);
     }
 }
 
-// Ìîäåëü âõ³äíîãî çàïèòó
+// ÐœÐ¾Ð´ÐµÐ»ÑŒ Ð²Ñ…Ñ–Ð´Ð½Ð¾Ð³Ð¾ Ð·Ð°Ð¿Ð¸Ñ‚Ñƒ (Excel -> RoutingRequest Ð°Ð±Ð¾ JSON -> RoutingRequest)
 public class RoutingRequest
 {
     public List<Technician> Technicians { get; set; } = [];
