@@ -8,5 +8,6 @@
         public required long[] ServiceDurations { get; set; }
         public int VehicleCount { get; set; }
         public int Office { get; set; } = 0;
+        public List<ServiceSite> ExpandedSites { get; set; } = [];
     }
 }

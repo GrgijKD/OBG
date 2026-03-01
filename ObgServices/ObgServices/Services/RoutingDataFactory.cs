@@ -1,8 +1,7 @@
 ﻿using ObgServices.Models;
+
 namespace ObgServices.Services
 {
-    using ObgServices.Models;
-
     public class RoutingDataFactory
     {
         private const double AverageSpeed = 40.0; // Середня швидкість, км/год
@@ -63,16 +62,33 @@ namespace ObgServices.Services
             var allLocations = new List<AddressInfo> { office };
 
             int skipCount = (office.Latitude != 0 && office.Longitude != 0 && tasks.Count > sites.Count) ? 1 : 0;
-            allLocations.AddRange(results.Skip(skipCount).Where(c => c != null)!);
+            var siteCoordinates = results.Skip(skipCount).ToList();
 
-            int n = allLocations.Count;
+            var expandedSites = new List<ServiceSite>();
+            var expandedLocations = new List<AddressInfo> { office };
+
+            for (int i = 0; i < sites.Count; i++)
+            {
+                var site = sites[i];
+                var coords = siteCoordinates[i] ?? throw new Exception($"Не вдалося отримати координати для {site.Id}");
+
+                // Якщо треба 2+ техніка, додаємо копії локації
+                for (int k = 0; k < site.TechsNeeded; k++)
+                {
+                    expandedSites.Add(site);
+                    expandedLocations.Add(coords);
+                }
+            }
+
+            // Кількість окремих візитів (не адрес)
+            int n = expandedLocations.Count;
 
             var distanceMatrix = new long[n, n];
             var timeMatrix = new long[n, n];
             var timeWindows = new long[n][];
             var serviceDurations = new long[n];
 
-            // Розрахунок матриць відстаней та часу
+            // Розрахунок матриць
             for (int i = 0; i < n; i++)
             {
                 timeWindows[i] = new long[2];
@@ -80,26 +96,23 @@ namespace ObgServices.Services
                 for (int j = 0; j < n; j++)
                 {
                     double distKm = GeoDistanceService.CalculateDistance(
-                        allLocations[i].Latitude, allLocations[i].Longitude,
-                        allLocations[j].Latitude, allLocations[j].Longitude);
+                        expandedLocations[i].Latitude, expandedLocations[i].Longitude,
+                        expandedLocations[j].Latitude, expandedLocations[j].Longitude);
 
                     distanceMatrix[i, j] = (long)(distKm * 1000); // у метрах
 
-                    // Розрахунок часу переїзду у хвилинах
                     double travelTimeMinutes = (distKm / AverageSpeed) * 60.0;
                     timeMatrix[i, j] = (long)travelTimeMinutes;
                 }
             }
 
-            // Заповнення даних для кожної локації
+            // Заповнення даних
             for (int i = 1; i < n; i++)
             {
-                var site = sites[i - 1];
+                var site = expandedSites[i - 1];
 
-                // Тривалість сервісу
                 serviceDurations[i] = site.VisitDuration;
 
-                // Часові вікна (конвертація у хвилини)
                 var window = site.AccessWindows.FirstOrDefault();
                 if (window != null)
                 {
@@ -108,15 +121,15 @@ namespace ObgServices.Services
                 }
                 else
                 {
-                    timeWindows[i][0] = 0; // 00:00
-                    timeWindows[i][1] = 1440; // 24:00
+                    timeWindows[i][0] = 0;
+                    timeWindows[i][1] = 1440;
                 }
             }
 
-            // Точка Офісу (доступна завжди, немає сервісу)
-            timeWindows[0][0] = 0; // 00:00
-            timeWindows[0][1] = 1440; // 24:00
-            serviceDurations[0] = 0;  // В офісі ми не виконуємо сервіс
+            // Точка Офісу
+            timeWindows[0][0] = 0;
+            timeWindows[0][1] = 1440;
+            serviceDurations[0] = 0;
 
             return new RoutingDataModel
             {
@@ -125,7 +138,10 @@ namespace ObgServices.Services
                 TimeWindows = timeWindows,
                 ServiceDurations = serviceDurations,
                 VehicleCount = techs.Count,
-                Office = 0
+                Office = 0,
+                // Рекомендую додати цю властивість у вашу модель RoutingDataModel, 
+                // щоб передати розширений список у RoutingSolverService.SolveRouting
+                ExpandedSites = expandedSites
             };
         }
     }

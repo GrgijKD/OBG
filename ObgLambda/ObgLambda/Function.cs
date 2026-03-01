@@ -12,60 +12,83 @@ public class Function
 {
     private readonly AmazonLocationServiceClient _locationClient = new();
 
-    public async Task<List<OptimizedRoute>> FunctionHandler(RoutingRequest request, ILambdaContext context)
+    public async Task<List<WeeklyRoute>> FunctionHandler(RoutingRequest request, ILambdaContext context)
     {
-        // Excel-input mode (default ON). If Excel is missing, we DO NOT fall back to JSON input.
+        // Робота з Excel/JSON
         if (UseExcelInput())
         {
             var excel = ExcelInputLoader.TryLoadFirstExcel(context.Logger);
-
-            if (excel is null)
-            {
-                context.Logger.LogLine("Excel input не знайдено в папці 'input'. JSON з поля ігнорується (поки що).");
-                return [];
-            }
-
+            if (excel is null) return [];
             try
             {
-                context.Logger.LogLine($"Excel input знайдено: '{excel.FileName}' ({excel.Content.Length} bytes). Починаю парсинг...");
-
-                // Ignore JSON payload; build RoutingRequest from Excel
                 request = ExcelRoutingRequestParser.Parse(excel.Content, excel.FileName, context.Logger);
-
-                context.Logger.LogLine($"Excel парсинг завершено: Technicians={request.Technicians.Count}, Sites={request.Sites.Count}");
             }
             catch (Exception ex)
             {
-                // Do not fail and do not use JSON either
-                context.Logger.LogLine($"Не вдалося розпарсити Excel '{excel.FileName}'. {ex}");
+                context.Logger.LogLine($"Помилка парсингу: {ex.Message}");
                 return [];
             }
         }
 
-        // Existing routing flow (works both for JSON input and for parsed Excel input)
-        context.Logger.LogLine("Початок процесу оптимізації маршрутів");
+        context.Logger.LogLine("Розподіл завдань на тиждень...");
         var geocodingService = new GeocodingService(_locationClient);
+        var weeklyScheduler = new WeeklySchedulerService();
 
-        // Фільтрація техніків за жорсткими обмеженнями
-        var qualifiedTechs = request.Technicians
-            .Where(t => request.Sites.Any(site => TechnicianFilterService.ValidateHardConstraints(t, site)))
-            .ToList();
+        // Розподіляємо локації по днях тижня (Пн-Пт)
+        var weeklyPlan = await WeeklySchedulerService.DistributeTasks(request.Technicians, request.Sites);
+        var finalResult = new List<WeeklyRoute>();
 
-        if (qualifiedTechs.Count == 0)
+        foreach (var tech in request.Technicians)
         {
-            context.Logger.LogLine("Не знайдено техніків для даних локацій");
-            return [];
+            tech.CurrentScheduledHours = 0; // Скидаємо перед розрахунком нового тижня
         }
 
-        // Побудова моделі даних (матриці відстаней та часу)
-        var routingData = await RoutingDataFactory.CreateModel(qualifiedTechs, request.Sites, geocodingService);
+        // Цикл по кожному робочому дню
+        foreach (var dayEntry in weeklyPlan)
+        {
+            var currentDay = dayEntry.Key;
+            var dayTasks = dayEntry.Value; // Список VisitTask
 
-        // Google OR-Tools для пошуку рішення
-        context.Logger.LogLine("Запуск Google OR-Tools...");
-        var resultRoutes = RoutingSolverService.SolveRouting(routingData, qualifiedTechs, request.Sites);
+            if (dayTasks.Count == 0) continue;
 
-        context.Logger.LogLine($"Оптимізація завершена. Сформовано маршрутів: {resultRoutes.Count}");
-        return resultRoutes;
+            context.Logger.LogLine($"Оптимізація для {currentDay}");
+
+            // Фільтрація кваліфікованих техніків, у яких не закінчилися години
+            var availableTechs = request.Technicians
+                .Where(t => t.CurrentScheduledHours < 40)
+                .Where(t => dayTasks.Any(task => TechnicianFilterService.ValidateHardConstraints(t, task.Site)))
+                .ToList();
+
+            if (availableTechs.Count == 0)
+            {
+                context.Logger.LogLine($"Немає доступних техніків для {currentDay}.");
+                finalResult.Add(new WeeklyRoute { Day = currentDay, Routes = [] });
+                continue;
+            }
+
+            var daySites = dayTasks.Select(t => t.Site).ToList();
+
+            // Побудова моделі та розрахунок маршрутів
+            var routingData = await RoutingDataFactory.CreateModel(availableTechs, daySites, geocodingService);
+            var dailyRoutes = RoutingSolverService.SolveRouting(routingData, availableTechs, currentDay);
+
+            // Оновлення відпрацьованих годин на тиждень
+            foreach (var route in dailyRoutes)
+            {
+                var tech = request.Technicians.FirstOrDefault(t => t.Id == route.TechnicianId);
+                if (tech != null)
+                {
+                    double hoursSpent = route.TotalDurationMinutes / 60.0;
+                    tech.CurrentScheduledHours += hoursSpent;
+
+                    context.Logger.LogLine($"Технік {tech.Name}: +{hoursSpent:F1} год. Разом за тиждень: {tech.CurrentScheduledHours:F1} з 40 год.");
+                }
+            }
+
+            finalResult.Add(new WeeklyRoute { Day = currentDay, Routes = dailyRoutes });
+        }
+
+        return finalResult;
     }
 
     private static bool UseExcelInput()

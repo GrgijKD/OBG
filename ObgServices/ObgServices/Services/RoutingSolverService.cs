@@ -5,34 +5,37 @@ namespace ObgServices.Services
 {
     public class RoutingSolverService
     {
-        public static List<OptimizedRoute> SolveRouting(RoutingDataModel data, List<Technician> techs, List<ServiceSite> sites)
+        public static List<OptimizedRoute> SolveRouting(RoutingDataModel data, List<Technician> techs, DayOfWeek day)
         {
-            RoutingIndexManager manager = new(data.DistanceMatrix.GetLength(0), data.VehicleCount, data.Office);
+            int nodeCount = data.ExpandedSites.Count + 1; // +1 для офісу
+            RoutingIndexManager manager = new(nodeCount, data.VehicleCount, data.Office);
             RoutingModel routing = new(manager);
+            var solver = routing.solver();
 
-            // Жорстка фільтрація техніків
-            for (int i = 1; i <= sites.Count; i++)
+            for (int i = 1; i <= data.ExpandedSites.Count; i++)
             {
-                var site = sites[i - 1];
+                var site = data.ExpandedSites[i - 1];
                 long nodeIndex = manager.NodeToIndex(i);
 
-                var allowedTechIndixes = new List<long>();
+                // Жорстка фільтрація техніків
+                var allowedTechIndices = new List<long>();
                 for (int t = 0; t < techs.Count; t++)
                 {
                     if (TechnicianFilterService.ValidateHardConstraints(techs[t], site))
                     {
-                        allowedTechIndixes.Add(t);
+                        allowedTechIndices.Add(t);
                     }
                 }
-                routing.VehicleVar(nodeIndex).SetValues([.. allowedTechIndixes]);
 
-                // Можливість пропуску якщо немає техніка або технік не встигає у часове вікно
+                // Встановлюємо список дозволених техніків
+                routing.VehicleVar(nodeIndex).SetValues([.. allowedTechIndices]);
+
+                // Дозволяємо пропуск точки з великим штрафом
                 routing.AddDisjunction([nodeIndex], 10000);
             }
 
-            // Часові вікна та тривалість
-            int timeCallbackIndex = routing.RegisterTransitCallback((fromIndex, toIndex) =>
-            {
+            // Часовий вимір
+            int timeCallbackIndex = routing.RegisterTransitCallback((fromIndex, toIndex) => {
                 var fromNode = manager.IndexToNode(fromIndex);
                 var toNode = manager.IndexToNode(toIndex);
                 return data.TimeMatrix[fromNode, toNode] + data.ServiceDurations[fromNode];
@@ -41,10 +44,44 @@ namespace ObgServices.Services
             routing.AddDimension(timeCallbackIndex, 30, 1440, false, "Time");
             var timeDimension = routing.GetMutableDimension("Time");
 
-            for (int i = 0; i < data.TimeWindows.Length; ++i)
+            // Синхронізація для TechsNeeded > 1 та часові вікна
+            for (int i = 1; i <= data.ExpandedSites.Count; i++)
             {
-                long index = manager.NodeToIndex(i);
-                timeDimension.CumulVar(index).SetRange(data.TimeWindows[i][0], data.TimeWindows[i][1]);
+                var site = data.ExpandedSites[i - 1];
+                long idx1 = manager.NodeToIndex(i);
+
+                // Встановлення часових вікон для кожної точки
+                timeDimension.CumulVar(idx1).SetRange(data.TimeWindows[i][0], data.TimeWindows[i][1]);
+
+                // Пошук дублікатів локація для синхронізації 2+ техніків
+                for (int j = i + 1; j <= data.ExpandedSites.Count; j++)
+                {
+                    var otherSite = data.ExpandedSites[j - 1];
+                    if (data.ExpandedSites[i - 1].Id == data.ExpandedSites[j - 1].Id)
+                    {
+                        long idx2 = manager.NodeToIndex(j);
+
+                        solver.Add(routing.ActiveVar(idx1) == routing.ActiveVar(idx2));
+
+                        // Допускається різниця прибуття у 15 хв
+                        var time1 = timeDimension.CumulVar(idx1);
+                        var time2 = timeDimension.CumulVar(idx2);
+                        solver.Add(solver.MakeAbs(time1 - time2) <= 15);
+
+                        // Техніки мають бути різними
+                        solver.Add(routing.VehicleVar(idx1) != routing.VehicleVar(idx2));
+                    }
+                }
+            }
+
+            for (int i = 0; i < data.VehicleCount; ++i)
+            {
+                long startIdx = routing.Start(i);
+                long endIdx = routing.End(i);
+
+                // Час повернення в офіс не може бути більшим ніж час виїзду + 480 хв (8 год)
+                routing.AddVariableMinimizedByFinalizer(timeDimension.CumulVar(endIdx));
+                solver.Add(timeDimension.CumulVar(endIdx) - timeDimension.CumulVar(startIdx) <= 480);
             }
 
             // Матриця відстаней
@@ -55,76 +92,102 @@ namespace ObgServices.Services
             });
             routing.SetArcCostEvaluatorOfAllVehicles(transitCallbackIndex);
 
-            // Побажання до техніків
-            for (int i = 1; i < sites.Count; i++)
-            {
-                var site = sites[i - 1];
-                long nodeIndex = manager.NodeToIndex(i);
+            // М'які умови
+            // Вимір для реальної відстані
+            int distCallbackIndex = routing.RegisterTransitCallback((fromIndex, toIndex) => {
+                return data.DistanceMatrix[manager.IndexToNode(fromIndex), manager.IndexToNode(toIndex)];
+            });
+            routing.AddDimension(distCallbackIndex, 0, 1000000, true, "Distance");
 
-                if (site.ProhibitedTechIds.Count > 0)
-                {
-                    routing.AddDisjunction([nodeIndex], 2000);
-                }
+            // Вимір для відстані зі штрафами
+            for (int t = 0; t < techs.Count; t++)
+            {
+                var currentTech = techs[t];
+                int vehicleCostCallbackIndex = routing.RegisterTransitCallback((fromIndex, toIndex) => {
+                    var toNode = manager.IndexToNode(toIndex);
+                    long dist = data.DistanceMatrix[manager.IndexToNode(fromIndex), toNode];
+
+                    if (toNode > 0 && toNode <= data.ExpandedSites.Count)
+                    {
+                        var targetSite = data.ExpandedSites[toNode - 1];
+
+                        if (targetSite.ProhibitedTechIds.Contains(currentTech.Id))
+                            return dist + 5000; // Штраф 50 км для небажаного техніка
+
+                        if (targetSite.PreferredTechIds.Contains(currentTech.Id))
+                            return dist > 5000 ? dist - 5000 : 0; // Знижка 5 км для бажаного техніка
+                    }
+                    return dist;
+                });
+
+                routing.SetArcCostEvaluatorOfVehicle(vehicleCostCallbackIndex, t);
             }
 
-            // Пошук рішення
+            // Налаштування пошуку
             RoutingSearchParameters searchParameters = operations_research_constraint_solver.DefaultRoutingSearchParameters();
             searchParameters.FirstSolutionStrategy = FirstSolutionStrategy.Types.Value.PathCheapestArc;
             searchParameters.LocalSearchMetaheuristic = LocalSearchMetaheuristic.Types.Value.SimulatedAnnealing;
-            searchParameters.TimeLimit = new Google.Protobuf.WellKnownTypes.Duration { Seconds = 10 };
+            searchParameters.TimeLimit = new Google.Protobuf.WellKnownTypes.Duration { Seconds = 30 };
 
+            // Вирішення
             Assignment solution = routing.SolveWithParameters(searchParameters);
 
             if (solution == null)
             {
-                Console.WriteLine("Рішення немає");
-            }
-            else
-            {
-                Console.WriteLine("Знайдено рішення з ціною: " + solution.ObjectiveValue());
+                Console.WriteLine("Рішення не знайдено.");
+                return [];
             }
 
-            return solution != null ? GetRoutes(routing, manager, solution, techs, sites) : [];
+            Console.WriteLine($"Знайдено рішення. Ціна: {solution.ObjectiveValue()}");
+            return solution != null ? GetRoutes(routing, manager, solution, techs, data.ExpandedSites, day) : [];
         }
 
-        public static List<OptimizedRoute> GetRoutes(RoutingModel routing, RoutingIndexManager manager, Assignment solution, List<Technician> techs, List<ServiceSite> sites)
+        public static List<OptimizedRoute> GetRoutes(
+            RoutingModel routing,
+            RoutingIndexManager manager,
+            Assignment solution,
+            List<Technician> techs,
+            List<ServiceSite> expandedSites,
+            DayOfWeek dayOfWeek)
         {
             var routes = new List<OptimizedRoute>();
             var timeDimension = routing.GetMutableDimension("Time");
+            var distDimension = routing.GetMutableDimension("Distance"); // Реальна дистанція
+
+            // Обчислюємо цільову дату
+            int daysUntilTarget = (int)dayOfWeek - (int)DateTime.Today.DayOfWeek;
+            DateTime baseDate = DateTime.Today.AddDays(daysUntilTarget);
 
             for (int i = 0; i < techs.Count; ++i)
             {
                 var route = new OptimizedRoute { TechnicianId = techs[i].Id, TechnicianName = techs[i].Name };
                 var index = routing.Start(i);
-                long routeDistance = 0;
 
                 while (!routing.IsEnd(index))
                 {
                     var nodeIndex = manager.IndexToNode(index);
-                    if (nodeIndex > 0 && nodeIndex <= sites.Count)
+                    if (nodeIndex > 0 && nodeIndex <= expandedSites.Count)
                     {
-                        var site = sites[nodeIndex - 1];
-                        var timeVar = timeDimension.CumulVar(index);
+                        var site = expandedSites[nodeIndex - 1];
+                        long arrivalMinutes = solution.Value(timeDimension.CumulVar(index));
 
                         route.Stops.Add(new RouteStop
                         {
                             SiteId = site.Id,
                             SiteName = site.Name,
-                            // Конвертуємо хвилини з OR-Tools у реальний час
-                            ExpectedArrivalTime = DateTime.Today.AddMinutes(solution.Value(timeVar)),
+                            ExpectedArrivalTime = baseDate.AddMinutes(arrivalMinutes),
                             Sequence = route.Stops.Count
                         });
                     }
-
-                    var previousIndex = index;
                     index = solution.Value(routing.NextVar(index));
-                    // Додаємо відстань переїзду до загальної суми
-                    routeDistance += routing.GetArcCostForVehicle(previousIndex, index, i);
                 }
 
-                route.TotalDistanceKm = routeDistance / 1000.0; // Конвертація в км
-                var endTimeVar = timeDimension.CumulVar(index);
-                route.TotalDurationMinutes = solution.Value(endTimeVar) - solution.Value(timeDimension.CumulVar(routing.Start(i)));
+                long totalMeters = solution.Value(distDimension.CumulVar(index));
+                route.TotalDistanceKm = totalMeters / 1000.0;
+
+                long startMinutes = solution.Value(timeDimension.CumulVar(routing.Start(i)));
+                long endMinutes = solution.Value(timeDimension.CumulVar(routing.End(i)));
+                route.TotalDurationMinutes = endMinutes - startMinutes;
 
                 routes.Add(route);
             }
