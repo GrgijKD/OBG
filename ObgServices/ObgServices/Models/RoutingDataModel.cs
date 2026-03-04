@@ -7,7 +7,10 @@
         public required long[][] TimeWindows { get; set; }
         public required long[] ServiceDurations { get; set; }
         public int VehicleCount { get; set; }
-        public int Office { get; set; } = 0;
+
+        public int[] Starts { get; set; } = [];
+        public int[] Ends { get; set; } = [];
+
         public List<ServiceSite> ExpandedSites { get; set; } = [];
     }
 }

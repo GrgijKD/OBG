@@ -42,11 +42,6 @@ namespace ObgServices.Services
             if (site.RequiresPhysicallyDemandingJob && !tech.CanPhysicallyDemandingJob)
                 isQualified = false;
 
-            // Ліміт робочих годин
-            double estimatedTotalHours = tech.CurrentScheduledHours + (site.VisitDuration / 60.0);
-            if (estimatedTotalHours > tech.MaxWeeklyHours)
-                isQualified = false;
-
             return isQualified;
         }
     }

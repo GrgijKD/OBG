@@ -1,7 +1,8 @@
+using Amazon.Lambda.Core;
 using ClosedXML.Excel;
 using ObgLambda;
 using ObgServices.Models;
-using Amazon.Lambda.Core;
+using System.Globalization;
 
 namespace ObgLambda.Excel;
 
@@ -14,6 +15,7 @@ public static class ExcelRoutingRequestParser
 
         var techniciansSheet = FindSheet(wb, "Technicians");
         var sitesSheet = FindSheet(wb, "Service sites");
+        var targetDates = new List<DateTime>();
 
         if (techniciansSheet is null)
             throw new InvalidOperationException("Excel: не знайдено лист 'Technicians'.");
@@ -28,7 +30,7 @@ public static class ExcelRoutingRequestParser
             logger?.LogLine("[ExcelParser][WARN] " + msg);
         }
 
-        var technicians = ParseTechnicians(techniciansSheet, Warn);
+        var technicians = ParseTechnicians(techniciansSheet, targetDates, Warn);
 
         var nameToId = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         foreach (var t in technicians)
@@ -39,14 +41,15 @@ public static class ExcelRoutingRequestParser
             }
         }
 
-var sites = ParseSites(sitesSheet, nameToId, Warn);
+        var sites = ParseSites(sitesSheet, nameToId, Warn);
 
         logger?.LogLine($"[ExcelParser] Джерело: {sourceName ?? "excel"}. Technicians={technicians.Count}, Sites={sites.Count}, Warnings={warnings.Count}");
 
         return new RoutingRequest
         {
             Technicians = technicians,
-            Sites = sites
+            Sites = sites,
+            TargetDates = targetDates
         };
     }
 
@@ -54,10 +57,13 @@ var sites = ParseSites(sitesSheet, nameToId, Warn);
         => wb.Worksheets.FirstOrDefault(ws =>
             ws.Name.Contains(nameContains, StringComparison.OrdinalIgnoreCase));
 
-    private static List<Technician> ParseTechnicians(IXLWorksheet ws, Action<string> warn)
+    private static List<Technician> ParseTechnicians(IXLWorksheet ws, List<DateTime> targetDatesOutput, Action<string> warn)
     {
         // Header rows in template: 2 (main), 3 (sub)
         var dayCols = ExcelParsingHelpers.GetDayTimeColumnPairs(ws, 2, 3);
+
+        // Target days for schedule creating
+        int colTargetDays = FindColContains(ws, 2, "target days for schedule");
 
         int colName = FindColContains(ws, 2, "name");
         int colHome = FindColContains(ws, 2, "home address");
@@ -89,6 +95,20 @@ var sites = ParseSites(sitesSheet, nameToId, Warn);
             if (string.IsNullOrWhiteSpace(name))
                 break;
 
+            var targetDayRaw = ExcelParsingHelpers.GetString(ws.Cell(row, colTargetDays));
+            if (!string.IsNullOrWhiteSpace(targetDayRaw))
+            {
+                if (DateTime.TryParseExact(targetDayRaw, "dd.MM.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
+                {
+                    if (!targetDatesOutput.Contains(parsedDate))
+                        targetDatesOutput.Add(parsedDate);
+                }
+                else
+                {
+                    warn($"Рядок {row}: невірний формат дати '{targetDayRaw}'. Очікується dd.mm.yyyy");
+                }
+            }
+
             var idBase = ExcelParsingHelpers.Slugify(name);
             var id = idBase;
             int suffix = 2;
@@ -113,26 +133,53 @@ var sites = ParseSites(sitesSheet, nameToId, Warn);
             var maxWeekly = ExcelParsingHelpers.ParseInt(ws.Cell(row, colMaxWeekly)) ?? 0;
 
             var skillRaw = ExcelParsingHelpers.GetString(ws.Cell(row, colServiceSkills));
-            var skill = ExcelParsingHelpers.ParseSkillAndLevel(skillRaw);
 
             // Default: no skills
             var interior = SkillLevel.None;
             var exterior = SkillLevel.None;
             var floral = SkillLevel.None;
 
-            if (skill is not null)
+            if (!string.IsNullOrWhiteSpace(skillRaw))
             {
-                var (sk, lvl) = skill.Value;
-                switch (sk)
+                var skillParts = skillRaw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                bool anyParsed = false;
+
+                foreach (var part in skillParts)
                 {
-                    case Skill.Interior: interior = lvl; break;
-                    case Skill.Exterior: exterior = lvl; break;
-                    case Skill.Floral: floral = lvl; break;
+                    var parsed = ExcelParsingHelpers.ParseSkillAndLevel(part);
+                    if (parsed is not null)
+                    {
+                        var (sk, lvl) = parsed.Value;
+                        switch (sk)
+                        {
+                            case Skill.Interior:
+                                interior = lvl;
+                                anyParsed = true;
+                                break;
+                            case Skill.Exterior:
+                                exterior = lvl;
+                                anyParsed = true;
+                                break;
+                            case Skill.Floral:
+                                floral = lvl;
+                                anyParsed = true;
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        warn($"Technician '{name}': не вдалося розпізнати частину скілла '{part}' у рядку '{skillRaw}'.");
+                    }
+                }
+
+                if (!anyParsed)
+                {
+                    warn($"Technician '{name}': жоден зі скіллів у рядку '{skillRaw}' не був розпізнаний.");
                 }
             }
             else
             {
-                warn($"Technician '{name}': не вдалося розпізнати Service skills='{skillRaw}'.");
+                warn($"Technician '{name}': колонка Service skills порожня.");
             }
 
             var workingHours = new List<TimeWindow>();
@@ -165,10 +212,8 @@ var sites = ParseSites(sitesSheet, nameToId, Warn);
                 _ => officeAddr ?? homeAddr
             };
 
-
             if (string.IsNullOrWhiteSpace(startAddr))
                 warn($"Technician '{name}': порожня адреса старту (Starts from='{startsRaw}'). Office/Home address порожні.");
-
 
             var tech = new Technician
             {
@@ -280,7 +325,7 @@ var sites = ParseSites(sitesSheet, nameToId, Warn);
             var techsWithPermitRaw = ExcelParsingHelpers.GetString(ws.Cell(row, colTechsWithPermit));
             var permittedTechIds = permitRequired
                 ? ExcelParsingHelpers.ParseTechList(techsWithPermitRaw, nameToId, warn)
-                : new List<string>();
+                : [];
 
             var access = new List<TimeWindow>();
             foreach (var (day, (fromCol, toCol)) in dayCols)
@@ -305,7 +350,7 @@ var sites = ParseSites(sitesSheet, nameToId, Warn);
             var req = ExcelParsingHelpers.ParseSkillAndLevel(skillReqRaw);
             if (req is null)
             {
-                warn($"Service site '{locName}': не вдалося розпізнати Service skill requirement='{skillReqRaw}'. Ставлю Exterior/None.");
+                warn($"Service site '{locName}': не вдалося розпізнати Service skill requirement = '{skillReqRaw}'. Ставлю Exterior/None.");
             }
 
             var preferredRaw = ExcelParsingHelpers.GetString(ws.Cell(row, colPreferred));
@@ -374,6 +419,6 @@ var sites = ParseSites(sitesSheet, nameToId, Warn);
                 return col;
         }
 
-        throw new InvalidOperationException($"Excel: не знайдено колонку (row={headerRow}) що містить '{contains}' на листі '{ws.Name}'.");
+        throw new InvalidOperationException($"Excel: не знайдено колонку (row = {headerRow}) що містить '{contains}' на листі '{ws.Name}'.");
     }
 }

@@ -29,63 +29,84 @@ public class Function
                 return [];
             }
         }
-
-        context.Logger.LogLine("Розподіл завдань на тиждень...");
+        context.Logger.LogLine("Генерація Майстер-розкладу...");
         var geocodingService = new GeocodingService(_locationClient);
-        var weeklyScheduler = new WeeklySchedulerService();
+        var masterScheduler = new MasterSchedulerService();
 
-        // Розподіляємо локації по днях тижня (Пн-Пт)
-        var weeklyPlan = await WeeklySchedulerService.DistributeTasks(request.Technicians, request.Sites);
+        // Створюємо розклад на основі всіх локацій та техніків
+        var masterSchedule = MasterSchedulerService.GenerateMasterSchedule(request.Sites, request.Technicians);
+        int horizon = masterSchedule.Count;
+        DateTime cycleStartDate = new(2026, 1, 1); // Точка відліку для робочих днів
+
         var finalResult = new List<WeeklyRoute>();
 
-        foreach (var tech in request.Technicians)
+        // Визначаємо, які дати потрібно прорахувати
+        var datesToProcess = request.TargetDates != null && request.TargetDates.Count != 0
+            ? request.TargetDates
+            : [DateTime.Today];
+
+        // Цикл по цільових датах
+        foreach (var targetDate in datesToProcess)
         {
-            tech.CurrentScheduledHours = 0; // Скидаємо перед розрахунком нового тижня
-        }
+            // Визначаємо індекс дня в циклі
+            int totalBusinessDays = BusinessDayHelper.GetBusinessDayIndex(cycleStartDate, targetDate);
+            int currentDayIndex = totalBusinessDays % horizon;
 
-        // Цикл по кожному робочому дню
-        foreach (var dayEntry in weeklyPlan)
-        {
-            var currentDay = dayEntry.Key;
-            var dayTasks = dayEntry.Value; // Список VisitTask
+            var sitesForDate = masterSchedule[currentDayIndex];
 
-            if (dayTasks.Count == 0) continue;
-
-            context.Logger.LogLine($"Оптимізація для {currentDay}");
-
-            // Фільтрація кваліфікованих техніків, у яких не закінчилися години
-            var availableTechs = request.Technicians
-                .Where(t => t.CurrentScheduledHours < 40)
-                .Where(t => dayTasks.Any(task => TechnicianFilterService.ValidateHardConstraints(t, task.Site)))
-                .ToList();
-
-            if (availableTechs.Count == 0)
+            if (sitesForDate.Count == 0)
             {
-                context.Logger.LogLine($"Немає доступних техніків для {currentDay}.");
-                finalResult.Add(new WeeklyRoute { Day = currentDay, Routes = [] });
+                context.Logger.LogLine($"Неможливо побудувати розклад на {targetDate:dd.MM.yyyy}, на цей день циклу немає візитів).");
                 continue;
             }
 
-            var daySites = dayTasks.Select(t => t.Site).ToList();
-
-            // Побудова моделі та розрахунок маршрутів
-            var routingData = await RoutingDataFactory.CreateModel(availableTechs, daySites, geocodingService);
-            var dailyRoutes = RoutingSolverService.SolveRouting(routingData, availableTechs, currentDay);
-
-            // Оновлення відпрацьованих годин на тиждень
-            foreach (var route in dailyRoutes)
+            if (currentDayIndex % 5 == 0)
             {
-                var tech = request.Technicians.FirstOrDefault(t => t.Id == route.TechnicianId);
-                if (tech != null)
-                {
-                    double hoursSpent = route.TotalDurationMinutes / 60.0;
-                    tech.CurrentScheduledHours += hoursSpent;
-
-                    context.Logger.LogLine($"Технік {tech.Name}: +{hoursSpent:F1} год. Разом за тиждень: {tech.CurrentScheduledHours:F1} з 40 год.");
-                }
+                foreach (var t in request.Technicians)
+                    t.CurrentScheduledHours = 0;
             }
 
-            finalResult.Add(new WeeklyRoute { Day = currentDay, Routes = dailyRoutes });
+            context.Logger.LogLine($"Обробка дати {targetDate:dd.MM.yyyy} (День циклу: {currentDayIndex + 1})");
+
+            // Фільтрація техніків для конкретного дня
+            var availableTechs = request.Technicians
+                .Where(t => sitesForDate.Any(s => TechnicianFilterService.ValidateHardConstraints(t, s)))
+                .ToList();
+
+            try
+            {
+                var routingData = await RoutingDataFactory.CreateModel(availableTechs, sitesForDate, geocodingService);
+                var dailyRoutes = RoutingSolverService.SolveRouting(routingData, availableTechs, targetDate.DayOfWeek);
+
+                if (dailyRoutes != null && dailyRoutes.Any(r => r.Stops.Count > 0))
+                {
+                    foreach (var route in dailyRoutes)
+                    {
+                        var tech = request.Technicians.FirstOrDefault(t => t.Id == route.TechnicianId);
+                        tech?.CurrentScheduledHours += route.TotalDurationMinutes / 60.0;
+                    }
+
+                    context.Logger.LogLine($"Побудовано розклад техніків на {targetDate:dd.MM.yyyy}:");
+                    foreach (var route in dailyRoutes)
+                    {
+                        context.Logger.LogLine($"- {route.TechnicianName}: {route.Stops.Count} зупинок.");
+                    }
+
+                    finalResult.Add(new WeeklyRoute
+                    {
+                        Day = targetDate.DayOfWeek,
+                        Routes = dailyRoutes
+                    });
+                }
+                else
+                {
+                    context.Logger.LogLine($"Неможливо побудувати розклад на {targetDate:dd.MM.yyyy}, рішення не знайдено).");
+                }
+            }
+            catch (Exception ex)
+            {
+                context.Logger.LogLine($"Неможливо побудувати розклад на {targetDate:dd.MM.yyyy} через помилку: {ex.Message}");
+            }
         }
 
         return finalResult;
@@ -107,4 +128,5 @@ public class RoutingRequest
 {
     public List<Technician> Technicians { get; set; } = [];
     public List<ServiceSite> Sites { get; set; } = [];
+    public List<DateTime> TargetDates { get; set; } = [];
 }
