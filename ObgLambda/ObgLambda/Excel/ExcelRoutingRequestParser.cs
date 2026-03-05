@@ -71,7 +71,7 @@ public static class ExcelRoutingRequestParser
         var dayCols = ExcelParsingHelpers.GetDayTimeColumnPairs(ws, 2, 3);
 
         // Optional: Target days for schedule creating
-        int colTargetDays = FindColAny(ws, 2, warn, required: false,
+        int colTargetDays = FindColAny(ws, 2, warn: null, required: false,
             "target days for schedule", "target day", "target date", "target dates");
 
         int colName = FindColAny(ws, 2, warn, required: true, "name", "technician name");
