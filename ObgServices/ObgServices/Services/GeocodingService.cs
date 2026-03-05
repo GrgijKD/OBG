@@ -27,6 +27,7 @@ namespace ObgServices.Services
                 {
                     Latitude = place.Geometry.Point[1],
                     Longitude = place.Geometry.Point[0],
+                    FullAddress = address,
                     City = place.Municipality,
                     ZipCode = place.PostalCode
                 };

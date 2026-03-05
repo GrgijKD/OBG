@@ -6,7 +6,6 @@
         public string? Name { get; set; }
         public required string Address { get; set; }
 
-
         public List<string> CurrentTechIds { get; set; } = [];
 
         public BestAccessMode BestAccessedBy { get; set; } = BestAccessMode.Unknown;
@@ -16,7 +15,6 @@
 
         public bool PermitRequired { get; set; }
         public PermitDifficulty PermitDifficulty { get; set; } = PermitDifficulty.Unknown;
-
 
         public List<TimeWindow> AccessWindows { get; set; } = [];
 
@@ -34,7 +32,6 @@
         public List<string> ProhibitedTechIds { get; set; } = [];
         public List<string> PermittedTechIds { get; set; } = []; // Якщо список порожній допуск мають усі
 
-
         public string? VisitFrequencyRaw { get; set; }
         public byte VisitsPerInterval { get; set; } // Напр. 2 у "2x a week"
         public int VisitIntervalDays { get; set; } = 7; // 7 = weekly, 14 = every 2 weeks, etc.
@@ -45,5 +42,7 @@
 
         public int VisitFreqency { get; set; } // Частота візитів, разів у тиждень (для сумісності)
         public int VisitDuration { get; set; } // Орієнтовна тривалість візиту у хв
+
+        public int AnchorDayNumber { get; set; } // Номер робочого дня в циклі
     }
 }

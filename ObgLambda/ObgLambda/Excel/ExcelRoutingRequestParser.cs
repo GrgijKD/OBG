@@ -1,7 +1,8 @@
+using Amazon.Lambda.Core;
 using ClosedXML.Excel;
 using ObgLambda;
 using ObgServices.Models;
-using Amazon.Lambda.Core;
+using System.Globalization;
 
 namespace ObgLambda.Excel;
 
@@ -12,6 +13,7 @@ public static class ExcelRoutingRequestParser
         using var ms = new MemoryStream(excelBytes);
         using var wb = new XLWorkbook(ms);
 
+        // Robust sheet detection (handles renamed sheets)
         var techniciansSheet = FindSheetAny(wb, "Technicians", "Tech");
         var sitesSheet = FindSheetAny(wb, "Service sites", "Sites", "Locations");
 
@@ -28,38 +30,49 @@ public static class ExcelRoutingRequestParser
             logger?.LogLine("[ExcelParser][WARN] " + msg);
         }
 
-        var technicians = ParseTechnicians(techniciansSheet, Warn);
+        // Collect target dates (optional column)
+        var targetDates = new List<DateTime>();
 
+        var technicians = ParseTechnicians(techniciansSheet, targetDates, Warn);
+
+        // Map technician names -> generated ids (used in sites parsing)
         var nameToId = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         foreach (var t in technicians)
         {
             if (!nameToId.TryAdd(t.Name, t.Id))
-            {
                 Warn($"Дубль імені техніка '{t.Name}' у Technicians. Використовую перший знайдений Id='{nameToId[t.Name]}'.");
-            }
         }
 
-var sites = ParseSites(sitesSheet, nameToId, Warn);
+        var sites = ParseSites(sitesSheet, nameToId, Warn);
 
         logger?.LogLine($"[ExcelParser] Джерело: {sourceName ?? "excel"}. Technicians={technicians.Count}, Sites={sites.Count}, Warnings={warnings.Count}");
 
         return new RoutingRequest
         {
             Technicians = technicians,
-            Sites = sites
+            Sites = sites,
+            TargetDates = targetDates
         };
     }
 
+    // -----------------------------
+    // Sheets
+    // -----------------------------
     private static IXLWorksheet? FindSheetAny(XLWorkbook wb, params string[] nameContainsAny)
         => wb.Worksheets.FirstOrDefault(ws =>
             nameContainsAny.Any(n => ws.Name.Contains(n, StringComparison.OrdinalIgnoreCase)));
 
-    private static IXLWorksheet? FindSheet(XLWorkbook wb, string nameContains)
-        => FindSheetAny(wb, nameContains);
-private static List<Technician> ParseTechnicians(IXLWorksheet ws, Action<string> warn)
+    // -----------------------------
+    // Technicians
+    // -----------------------------
+    private static List<Technician> ParseTechnicians(IXLWorksheet ws, List<DateTime> targetDatesOutput, Action<string> warn)
     {
         // Header rows in template: 2 (main), 3 (sub)
         var dayCols = ExcelParsingHelpers.GetDayTimeColumnPairs(ws, 2, 3);
+
+        // Optional: Target days for schedule creating
+        int colTargetDays = FindColAny(ws, 2, warn, required: false,
+            "target days for schedule", "target day", "target date", "target dates");
 
         int colName = FindColAny(ws, 2, warn, required: true, "name", "technician name");
         int colHome = FindColAny(ws, 2, warn, required: true, "home address", "home");
@@ -91,6 +104,25 @@ private static List<Technician> ParseTechnicians(IXLWorksheet ws, Action<string>
             if (string.IsNullOrWhiteSpace(name))
                 break;
 
+            // Parse optional target day (dd.MM.yyyy)
+            if (colTargetDays > 0)
+            {
+                var targetDayRaw = ExcelParsingHelpers.GetString(ws.Cell(row, colTargetDays));
+                if (!string.IsNullOrWhiteSpace(targetDayRaw))
+                {
+                    if (DateTime.TryParseExact(targetDayRaw, "dd.MM.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsedDate))
+                    {
+                        if (!targetDatesOutput.Contains(parsedDate))
+                            targetDatesOutput.Add(parsedDate);
+                    }
+                    else
+                    {
+                        warn($"Рядок {row}: невірний формат дати '{targetDayRaw}'. Очікується dd.MM.yyyy");
+                    }
+                }
+            }
+
+            // Unique technician id (prevents collisions on same name)
             var idBase = ExcelParsingHelpers.Slugify(name);
             var id = idBase;
             int suffix = 2;
@@ -114,27 +146,43 @@ private static List<Technician> ParseTechnicians(IXLWorksheet ws, Action<string>
             var maxDaily = colMaxDaily > 0 ? ExcelParsingHelpers.ParseInt(ws.Cell(row, colMaxDaily)) : null;
             var maxWeekly = (colMaxWeekly > 0 ? ExcelParsingHelpers.ParseInt(ws.Cell(row, colMaxWeekly)) : null) ?? 0;
 
+            // Skills can be a comma-separated list: "Interior - Basic, Exterior - Pro"
             var skillRaw = ExcelParsingHelpers.GetString(ws.Cell(row, colServiceSkills));
-            var skill = ExcelParsingHelpers.ParseSkillAndLevel(skillRaw);
 
-            // Default: no skills
             var interior = SkillLevel.None;
             var exterior = SkillLevel.None;
             var floral = SkillLevel.None;
 
-            if (skill is not null)
+            if (!string.IsNullOrWhiteSpace(skillRaw))
             {
-                var (sk, lvl) = skill.Value;
-                switch (sk)
+                var parts = skillRaw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                bool anyParsed = false;
+
+                foreach (var part in parts)
                 {
-                    case Skill.Interior: interior = lvl; break;
-                    case Skill.Exterior: exterior = lvl; break;
-                    case Skill.Floral: floral = lvl; break;
+                    var parsed = ExcelParsingHelpers.ParseSkillAndLevel(part);
+                    if (parsed is null)
+                    {
+                        warn($"Technician '{name}': не вдалося розпізнати частину скілла '{part}' у рядку '{skillRaw}'.");
+                        continue;
+                    }
+
+                    anyParsed = true;
+                    var (sk, lvl) = parsed.Value;
+                    switch (sk)
+                    {
+                        case Skill.Interior: interior = lvl; break;
+                        case Skill.Exterior: exterior = lvl; break;
+                        case Skill.Floral: floral = lvl; break;
+                    }
                 }
+
+                if (!anyParsed)
+                    warn($"Technician '{name}': жоден зі скіллів у рядку '{skillRaw}' не був розпізнаний.");
             }
             else
             {
-                warn($"Technician '{name}': не вдалося розпізнати Service skills='{skillRaw}'.");
+                warn($"Technician '{name}': колонка Service skills порожня.");
             }
 
             var workingHours = new List<TimeWindow>();
@@ -152,7 +200,7 @@ private static List<Technician> ParseTechnicians(IXLWorksheet ws, Action<string>
                 });
             }
 
-            // Decide start/end addresses for future geocoding
+            // Decide start/end addresses
             string? startAddr = startsFrom switch
             {
                 StartFinishPoint.Home => homeAddr,
@@ -167,10 +215,8 @@ private static List<Technician> ParseTechnicians(IXLWorksheet ws, Action<string>
                 _ => officeAddr ?? homeAddr
             };
 
-
             if (string.IsNullOrWhiteSpace(startAddr))
                 warn($"Technician '{name}': порожня адреса старту (Starts from='{startsRaw}'). Office/Home address порожні.");
-
 
             var tech = new Technician
             {
@@ -199,7 +245,6 @@ private static List<Technician> ParseTechnicians(IXLWorksheet ws, Action<string>
                 PesticideCertificated = (colPesticide > 0 && ExcelParsingHelpers.ParseBool(ws.Cell(row, colPesticide))),
                 HasCitizenship = (colCitizen > 0 && ExcelParsingHelpers.ParseBool(ws.Cell(row, colCitizen))),
 
-                // Coordinates will be resolved later if needed.
                 StartLocation = new AddressInfo { Latitude = 0, Longitude = 0, FullAddress = startAddr },
                 EndLocation = new AddressInfo { Latitude = 0, Longitude = 0, FullAddress = endAddr }
             };
@@ -211,6 +256,9 @@ private static List<Technician> ParseTechnicians(IXLWorksheet ws, Action<string>
         return technicians;
     }
 
+    // -----------------------------
+    // Sites
+    // -----------------------------
     private static List<ServiceSite> ParseSites(IXLWorksheet ws, Dictionary<string, string> nameToId, Action<string> warn)
     {
         var dayCols = ExcelParsingHelpers.GetDayTimeColumnPairs(ws, 2, 3);
@@ -224,7 +272,7 @@ private static List<Technician> ParseTechnicians(IXLWorksheet ws, Action<string>
         // Entrance permit sub-headers are on row 3
         int colPermitRequired = FindColAny(ws, 3, warn, required: false, "permit required");
         int colPermitDifficulty = FindColAny(ws, 3, warn, required: false, "how difficult", "how difficult to get a permit");
-        int colTechsWithPermit = FindColAny(ws, 3, warn, required: false, "techs with permit");
+        int colTechsWithPermit = FindColAny(ws, 3, warn, required: false, "techs with permit", "techs with permit");
 
         int colVisitFreq = FindColAny(ws, 2, warn, required: false, "visit freqency", "visit frequency", "frequency");
         int colVisitDur = FindColAny(ws, 2, warn, required: false, "est duration", "duration", "est duration of the visit");
@@ -259,6 +307,7 @@ private static List<Technician> ParseTechnicians(IXLWorksheet ws, Action<string>
                 continue;
             }
 
+            // Unique site id
             var idBase = ExcelParsingHelpers.Slugify(locName);
             var id = idBase;
             int suffix = 2;
@@ -276,9 +325,10 @@ private static List<Technician> ParseTechnicians(IXLWorksheet ws, Action<string>
 
             var techsNeeded = (colTechsNeeded > 0 ? ExcelParsingHelpers.ParseInt(ws.Cell(row, colTechsNeeded)) : null) ?? 1;
 
-            var permitRequired = colPermitRequired > 0 && ExcelParsingHelpers.ParseBool(ws.Cell(row, colPermitRequired));
+            var permitRequired = (colPermitRequired > 0) && ExcelParsingHelpers.ParseBool(ws.Cell(row, colPermitRequired));
             var permitDifficultyRaw = colPermitDifficulty > 0 ? ExcelParsingHelpers.GetString(ws.Cell(row, colPermitDifficulty)) : null;
             var permitDifficulty = ExcelParsingHelpers.ParsePermitDifficulty(permitDifficultyRaw);
+
             var techsWithPermitRaw = colTechsWithPermit > 0 ? ExcelParsingHelpers.GetString(ws.Cell(row, colTechsWithPermit)) : null;
             var permittedTechIds = permitRequired
                 ? ExcelParsingHelpers.ParseTechList(techsWithPermitRaw, nameToId, warn)
@@ -306,9 +356,7 @@ private static List<Technician> ParseTechnicians(IXLWorksheet ws, Action<string>
             var skillReqRaw = colSkillReq > 0 ? ExcelParsingHelpers.GetString(ws.Cell(row, colSkillReq)) : null;
             var req = ExcelParsingHelpers.ParseSkillAndLevel(skillReqRaw);
             if (req is null)
-            {
                 warn($"Service site '{locName}': не вдалося розпізнати Service skill requirement='{skillReqRaw}'. Ставлю Exterior/None.");
-            }
 
             var preferredRaw = colPreferred > 0 ? ExcelParsingHelpers.GetString(ws.Cell(row, colPreferred)) : null;
             var prohibitedRaw = colProhibited > 0 ? ExcelParsingHelpers.GetString(ws.Cell(row, colProhibited)) : null;
@@ -360,11 +408,13 @@ private static List<Technician> ParseTechnicians(IXLWorksheet ws, Action<string>
         return sites;
     }
 
+    // -----------------------------
+    // Column finding (robust)
+    // -----------------------------
     private static int FindColAny(IXLWorksheet ws, int headerRow, Action<string>? warn, bool required, params string[] candidates)
     {
         var lastCol = ws.LastColumnUsed()?.ColumnNumber() ?? 1;
 
-        // Pre-normalize candidates
         var normalized = candidates
             .Where(c => !string.IsNullOrWhiteSpace(c))
             .Select(c => (raw: c, norm: ExcelParsingHelpers.NormalizeHeader(c)))
@@ -384,7 +434,7 @@ private static List<Technician> ParseTechnicians(IXLWorksheet ws, Action<string>
                 if (h.Contains(c.norm, StringComparison.OrdinalIgnoreCase))
                     return col;
 
-                // Token-based match: all tokens must be present
+                // Token match: all tokens must be present
                 var tokens = c.norm.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 if (tokens.Length > 1 && tokens.All(t => h.Contains(t, StringComparison.OrdinalIgnoreCase)))
                     return col;
@@ -397,11 +447,4 @@ private static List<Technician> ParseTechnicians(IXLWorksheet ws, Action<string>
         warn?.Invoke(msg);
         return -1;
     }
-
-    private static int FindColContains(IXLWorksheet ws, int headerRow, string contains)
-        => FindColAny(ws, headerRow, warn: null, required: true, contains);
-
-    private static int FindColOptional(IXLWorksheet ws, int headerRow, Action<string> warn, params string[] candidates)
-        => FindColAny(ws, headerRow, warn, required: false, candidates);
 }
-
