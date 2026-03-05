@@ -1,6 +1,7 @@
 using Amazon.Lambda.Core;
 using Amazon.LocationService;
 using ObgLambda.Excel;
+using ObgLambda.Json;
 using ObgServices.Models;
 using ObgServices.Services;
 
@@ -65,6 +66,10 @@ public class Function
         var resultRoutes = RoutingSolverService.SolveRouting(routingData, qualifiedTechs, request.Sites);
 
         context.Logger.LogLine($"Оптимізація завершена. Сформовано маршрутів: {resultRoutes.Count}");
+
+        // Export result schedule JSON into ./output (for local runs and Lambda /tmp mapping)
+        OutputJsonWriter.TryWriteScheduleJson(resultRoutes, context.Logger);
+
         return resultRoutes;
     }
 

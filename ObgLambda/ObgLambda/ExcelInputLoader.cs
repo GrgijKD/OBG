@@ -23,6 +23,7 @@ public static class ExcelInputLoader
     public static ExcelInputFile? TryLoadFirstExcel(ILambdaLogger? logger = null)
     {
         var candidateDirs = new List<string>();
+        var checkedPaths = new List<string>();
 
         var envDir = Environment.GetEnvironmentVariable("OBG_INPUT_DIR");
         if (!string.IsNullOrWhiteSpace(envDir))
@@ -39,7 +40,7 @@ public static class ExcelInputLoader
             {
                 if (!Directory.Exists(dir))
                 {
-                    logger?.LogLine($"[ExcelInputLoader] Папка не знайдена: {dir}");
+                    checkedPaths.Add($"- {dir} (папка не існує)");
                     continue;
                 }
 
@@ -49,19 +50,33 @@ public static class ExcelInputLoader
 
                 if (excelFiles.Count == 0)
                 {
-                    logger?.LogLine($"[ExcelInputLoader] У папці немає *.xlsx: {dir}");
+                    checkedPaths.Add($"- {dir} (немає *.xlsx)");
                     continue;
                 }
 
                 var fullPath = excelFiles[0];
                 var bytes = File.ReadAllBytes(fullPath);
 
+                // Логуємо ТІЛЬКИ фінальний позитивний результат.
+                logger?.LogLine(
+                    $"[ExcelInputLoader] Excel input знайдено: '{Path.GetFileName(fullPath)}' ({bytes.Length} bytes). Джерело: {dir}");
+
                 return new ExcelInputFile(fullPath, Path.GetFileName(fullPath), bytes);
             }
             catch (Exception ex)
             {
-                logger?.LogLine($"[ExcelInputLoader] Помилка читання Excel з папки '{dir}': {ex}");
+                checkedPaths.Add($"- {dir} (помилка читання: {ex.GetType().Name}: {ex.Message})");
             }
+        }
+
+        // Логуємо ТІЛЬКИ фінальний негативний результат.
+        if (logger != null)
+        {
+            var details = checkedPaths.Count == 0
+                ? "(немає кандидатних шляхів)"
+                : string.Join(Environment.NewLine, checkedPaths);
+
+            logger.LogLine($"[ExcelInputLoader] Excel input не знайдено. Перевірено:{Environment.NewLine}{details}");
         }
 
         return null;
