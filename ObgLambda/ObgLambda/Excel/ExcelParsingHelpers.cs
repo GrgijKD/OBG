@@ -31,6 +31,25 @@ internal static class ExcelParsingHelpers
     public static string NormalizeSpaces(string s)
         => string.Join(' ', s.Replace('\n', ' ').Replace('\r', ' ').Split(' ', StringSplitOptions.RemoveEmptyEntries));
 
+    public static string NormalizeHeader(string? s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return string.Empty;
+
+        // Lower, remove punctuation/symbols, keep letters/digits/spaces
+        s = NormalizeSpaces(s).ToLowerInvariant();
+        var sb = new StringBuilder(s.Length);
+        foreach (var ch in s)
+        {
+            if (char.IsLetterOrDigit(ch) || ch == ' ')
+                sb.Append(ch);
+            else
+                sb.Append(' ');
+        }
+
+        return NormalizeSpaces(sb.ToString());
+    }
+
+
     public static bool ParseBool(IXLCell cell)
     {
         var s = GetString(cell);
