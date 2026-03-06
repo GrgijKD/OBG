@@ -48,7 +48,9 @@ public class Function
         // Master schedule (depends on your Services branch changes)
         var masterSchedule = MasterSchedulerService.GenerateMasterSchedule(request.Sites, request.Technicians);
         int horizon = masterSchedule.Count;
-        DateTime cycleStartDate = new(2026, 1, 1);
+        // Start planning from the beginning of the next calendar week (Monday).
+        // This simplifies weekly-hours accounting and makes weeks comparable.
+        DateTime cycleStartDate = GetNextMonday(DateTime.Today);
 
         var finalResult = new List<WeeklyRoute>();
 
@@ -62,9 +64,12 @@ public class Function
 
         foreach (var targetDate in datesToProcess)
         {
-            int totalBusinessDays = BusinessDayHelper.GetBusinessDayIndex(cycleStartDate, targetDate);
-            int currentDayIndex = totalBusinessDays % horizon;
-            int currentWeekNum = totalBusinessDays / 5;
+            // NOTE: BusinessDayHelper now counts full calendar days (7-day weeks).
+            int totalDays = BusinessDayHelper.GetBusinessDayIndex(cycleStartDate, targetDate);
+            if (totalDays < 0) totalDays = 0; // clamp (if someone passes a date before cycleStartDate)
+
+            int currentDayIndex = totalDays % horizon;
+            int currentWeekNum = totalDays / 7;
 
             var sitesForDate = masterSchedule[currentDayIndex];
 
@@ -144,6 +149,14 @@ public class Function
         }
 
         return finalResult;
+    }
+
+    private static DateTime GetNextMonday(DateTime from)
+    {
+        var d = from.Date;
+        int daysUntilMonday = ((int)DayOfWeek.Monday - (int)d.DayOfWeek + 7) % 7;
+        if (daysUntilMonday == 0) daysUntilMonday = 7; // "next" Monday, not "this" Monday
+        return d.AddDays(daysUntilMonday);
     }
 
     private static bool UseExcelInput()

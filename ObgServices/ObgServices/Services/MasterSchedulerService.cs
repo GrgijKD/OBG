@@ -17,7 +17,7 @@ namespace ObgServices.Services
 
             var schedule = new Dictionary<int, List<ServiceSite>>();
             var dailyLoad = new double[horizon]; // Навантаження по днях
-            var weeklyLoad = new double[(int)Math.Ceiling(horizon / 5.0)]; // Навантаження по робочих тижнях
+            var weeklyLoad = new double[(int)Math.Ceiling(horizon / 7.0)]; // Навантаження по календарних тижнях (7 днів)
 
             for (int i = 0; i < horizon; i++) schedule[i] = [];
 
@@ -40,7 +40,7 @@ namespace ObgServices.Services
                     // Перевіряємо всю послідовність візитів для цього варіанту старту
                     for (int d = startDay; d < horizon; d += intervalWd)
                     {
-                        int weekIdx = d / 5;
+                        int weekIdx = d / 7;
 
                         // Якщо день або тиждень виходить за межі - даний старт більше не перевіряється
                         if (dailyLoad[d] + siteWeight > totalDailyCapacityPool ||
@@ -74,7 +74,7 @@ namespace ObgServices.Services
                     {
                         schedule[d].Add(site);
                         dailyLoad[d] += siteWeight;
-                        if (d / 5 < weeklyLoad.Length) weeklyLoad[d / 5] += siteWeight;
+                        if (d / 7 < weeklyLoad.Length) weeklyLoad[d / 7] += siteWeight;
                     }
                 }
                 else
@@ -99,7 +99,7 @@ namespace ObgServices.Services
         {
             for (int d = 0; d < horizon; d++)
             {
-                int weekIdx = d / 5;
+                int weekIdx = d / 7;
 
                 // Якщо день або тиждень перевантажені
                 while (dailyLoad[d] > dailyCap || (weekIdx < weeklyLoad.Length && weeklyLoad[weekIdx] > weeklyCap))
@@ -126,8 +126,8 @@ namespace ObgServices.Services
                         dailyLoad[targetDay] += weight;
 
                         // Оновлюємо навантаження тижня
-                        weeklyLoad[d / 5] -= weight;
-                        weeklyLoad[targetDay / 5] += weight;
+                        weeklyLoad[d / 7] -= weight;
+                        weeklyLoad[targetDay / 7] += weight;
                     }
                     else break;
                 }
@@ -136,9 +136,9 @@ namespace ObgServices.Services
 
         private static int FindEmptyDayInRange(int currentDay, double[] dailyLoad, double capacity, int horizon)
         {
-            // Перевіряємо сусідні робочі дні в межах того ж робочого тижня
-            int weekStart = (currentDay / 5) * 5;
-            int weekEnd = Math.Min(weekStart + 4, horizon - 1);
+            // Перевіряємо сусідні дні в межах того ж календарного тижня (7 днів)
+            int weekStart = (currentDay / 7) * 7;
+            int weekEnd = Math.Min(weekStart + 6, horizon - 1);
 
             for (int i = weekStart; i <= weekEnd; i++)
             {
