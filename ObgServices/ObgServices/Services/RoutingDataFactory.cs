@@ -1,122 +1,114 @@
 ﻿using ObgServices.Models;
+
 namespace ObgServices.Services
 {
-    using ObgServices.Models;
-
     public class RoutingDataFactory
     {
-        private const double AverageSpeed = 40.0; // Середня швидкість, км/год
-
         public static async Task<RoutingDataModel> CreateModel(
             List<Technician> techs,
             List<ServiceSite> sites,
             GeocodingService geocodingService)
         {
-            // Отримуємо координати всіх локацій через GeocodingService
-            // Точка старту техніка (офіс) у поточній реалізації береться як StartLocation першого техніка
-            // Якщо координати не задані (0,0), пробуємо визначити їх через геокодування за FullAddress / City+Zip
             using var semaphore = new SemaphoreSlim(20);
-            var office = techs[0].StartLocation;
-            var tasks = new List<Task<AddressInfo?>>();
 
-            async Task<AddressInfo?> GeocodeWithLimit(string address)
+            // Збираємо всі унікальні адреси для геокодування
+            var techStarts = techs.Select(t => t.StartLocation).ToList();
+            var techEnds = techs.Select(t => t.EndLocation).ToList();
+
+            var allGeocodeTasks = new List<Task<AddressInfo?>>();
+
+            async Task<AddressInfo?> SafeGeocode(string address)
             {
                 await semaphore.WaitAsync();
-                try
-                {
-                    return await geocodingService.GetCoordinatesFromAddress(address);
-                }
-                finally
-                {
-                    semaphore.Release();
-                }
+                try { return await geocodingService.GetCoordinatesFromAddress(address); }
+                finally { semaphore.Release(); }
             }
 
-            if ((office.Latitude == 0 && office.Longitude == 0))
+            // Додаємо старти
+            foreach (var t in techs) allGeocodeTasks.Add(SafeGeocode(t.StartLocation.FullAddress));
+            // Додаємо фініші
+            foreach (var t in techs) allGeocodeTasks.Add(SafeGeocode(t.EndLocation.FullAddress));
+            // Додаємо локації
+            foreach (var s in sites) allGeocodeTasks.Add(SafeGeocode(s.Address));
+
+            var results = await Task.WhenAll(allGeocodeTasks);
+
+            var startCoords = results.Take(techs.Count).ToList();
+            var endCoords = results.Skip(techs.Count).Take(techs.Count).ToList();
+            var siteCoords = results.Skip(techs.Count * 2).ToList();
+
+            // Формуємо розширений список локацій для матриці
+            var allLocations = new List<AddressInfo>();
+            var starts = new int[techs.Count];
+            var ends = new int[techs.Count];
+
+            // Додаємо точки старту
+            for (int i = 0; i < techs.Count; i++)
             {
-                string? officeQuery = !string.IsNullOrWhiteSpace(office.FullAddress)
-                    ? office.FullAddress
-                    : string.Join(" ", new[] { office.City, office.ZipCode }.Where(s => !string.IsNullOrWhiteSpace(s)));
+                starts[i] = allLocations.Count;
+                allLocations.Add(startCoords[i] ?? throw new Exception($"Немає координат старту для {techs[i].Name}"));
+            }
 
-                if (!string.IsNullOrWhiteSpace(officeQuery))
+            // Додаємо точки фінішу
+            for (int i = 0; i < techs.Count; i++)
+            {
+                ends[i] = allLocations.Count;
+                allLocations.Add(endCoords[i] ?? throw new Exception($"Немає координат фінішу для {techs[i].Name}"));
+            }
+
+            // Додаємо локації з урахуванням TechsNeeded > 1
+            var expandedSites = new List<ServiceSite>();
+            int siteOffset = allLocations.Count;
+
+            for (int i = 0; i < sites.Count; i++)
+            {
+                var coord = siteCoords[i] ?? throw new Exception($"Немає координат для сайту {sites[i].Address}");
+                for (int k = 0; k < sites[i].TechsNeeded; k++)
                 {
-                    var officeCoords = await geocodingService.GetCoordinatesFromAddress(officeQuery)
-                        ?? throw new Exception($"Не вдалося визначити координати для офісу/старту техніка: {officeQuery}");
-
-                    office.Latitude = officeCoords.Latitude;
-                    office.Longitude = officeCoords.Longitude;
-                    office.City = officeCoords.City;
-                    office.ZipCode = officeCoords.ZipCode;
-                    office.FullAddress ??= officeQuery;
+                    expandedSites.Add(sites[i]);
+                    allLocations.Add(coord);
                 }
             }
-
-            foreach (var site in sites)
-            {
-                tasks.Add(Task.Run<AddressInfo?>(async () => {
-                    var coords = await GeocodeWithLimit(site.Address) ?? throw new Exception($"Не вдалося визначити координати для адреси: {site.Address}");
-                    return coords;
-                }));
-            }
-            var results = await Task.WhenAll(tasks);
-
-            var allLocations = new List<AddressInfo> { office };
-
-            int skipCount = (office.Latitude != 0 && office.Longitude != 0 && tasks.Count > sites.Count) ? 1 : 0;
-            allLocations.AddRange(results.Skip(skipCount).Where(c => c != null)!);
 
             int n = allLocations.Count;
-
             var distanceMatrix = new long[n, n];
             var timeMatrix = new long[n, n];
             var timeWindows = new long[n][];
             var serviceDurations = new long[n];
 
-            // Розрахунок матриць відстаней та часу
+            // Розрахунок матриць на основі всіх локацій
             for (int i = 0; i < n; i++)
             {
                 timeWindows[i] = new long[2];
-
                 for (int j = 0; j < n; j++)
                 {
                     double distKm = GeoDistanceService.CalculateDistance(
                         allLocations[i].Latitude, allLocations[i].Longitude,
                         allLocations[j].Latitude, allLocations[j].Longitude);
 
-                    distanceMatrix[i, j] = (long)(distKm * 1000); // у метрах
-
-                    // Розрахунок часу переїзду у хвилинах
-                    double travelTimeMinutes = (distKm / AverageSpeed) * 60.0;
-                    timeMatrix[i, j] = (long)travelTimeMinutes;
+                    distanceMatrix[i, j] = (long)(distKm * 1000);
+                    timeMatrix[i, j] = (long)((distKm / 40.0) * 60.0);
                 }
             }
 
-            // Заповнення даних для кожної локації
-            for (int i = 1; i < n; i++)
+            // Заповнення вікон та тривалості
+            // Старти та фініші техніків мають 0 тривалості роботи
+            for (int i = 0; i < siteOffset; i++)
             {
-                var site = sites[i - 1];
-
-                // Тривалість сервісу
-                serviceDurations[i] = site.VisitDuration;
-
-                // Часові вікна (конвертація у хвилини)
-                var window = site.AccessWindows.FirstOrDefault();
-                if (window != null)
-                {
-                    timeWindows[i][0] = (long)window.OpenTime.TotalMinutes;
-                    timeWindows[i][1] = (long)window.CloseTime.TotalMinutes;
-                }
-                else
-                {
-                    timeWindows[i][0] = 0; // 00:00
-                    timeWindows[i][1] = 1440; // 24:00
-                }
+                serviceDurations[i] = 0;
+                timeWindows[i][0] = 0;
+                timeWindows[i][1] = 1440;
             }
 
-            // Точка Офісу (доступна завжди, немає сервісу)
-            timeWindows[0][0] = 0; // 00:00
-            timeWindows[0][1] = 1440; // 24:00
-            serviceDurations[0] = 0;  // В офісі ми не виконуємо сервіс
+            // Локації
+            for (int i = siteOffset; i < n; i++)
+            {
+                var site = expandedSites[i - siteOffset];
+                serviceDurations[i] = site.VisitDuration;
+                var window = site.AccessWindows.FirstOrDefault();
+                timeWindows[i][0] = window != null ? (long)window.OpenTime.TotalMinutes : 0;
+                timeWindows[i][1] = window != null ? (long)window.CloseTime.TotalMinutes : 1440;
+            }
 
             return new RoutingDataModel
             {
@@ -125,7 +117,9 @@ namespace ObgServices.Services
                 TimeWindows = timeWindows,
                 ServiceDurations = serviceDurations,
                 VehicleCount = techs.Count,
-                Office = 0
+                Starts = starts,
+                Ends = ends,
+                ExpandedSites = expandedSites
             };
         }
     }

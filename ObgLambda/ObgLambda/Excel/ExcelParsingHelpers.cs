@@ -29,7 +29,48 @@ internal static class ExcelParsingHelpers
     }
 
     public static string NormalizeSpaces(string s)
-        => string.Join(' ', s.Replace('\n', ' ').Replace('\r', ' ').Split(' ', StringSplitOptions.RemoveEmptyEntries));
+    {
+        // Collapse ANY whitespace (spaces, tabs, newlines, NBSP, etc.) into single spaces.
+        if (string.IsNullOrEmpty(s)) return string.Empty;
+
+        var sb = new StringBuilder(s.Length);
+        bool inSpace = false;
+
+        foreach (var ch in s)
+        {
+            if (char.IsWhiteSpace(ch))
+            {
+                if (!inSpace && sb.Length > 0)
+                    sb.Append(' ');
+                inSpace = true;
+                continue;
+            }
+
+            sb.Append(ch);
+            inSpace = false;
+        }
+
+        return sb.ToString().Trim();
+    }
+
+    public static string NormalizeHeader(string? s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return string.Empty;
+
+        // Lower, remove punctuation/symbols, keep letters/digits/spaces
+        s = NormalizeSpaces(s).ToLowerInvariant();
+        var sb = new StringBuilder(s.Length);
+        foreach (var ch in s)
+        {
+            if (char.IsLetterOrDigit(ch) || ch == ' ')
+                sb.Append(ch);
+            else
+                sb.Append(' ');
+        }
+
+        return NormalizeSpaces(sb.ToString());
+    }
+
 
     public static bool ParseBool(IXLCell cell)
     {
@@ -239,17 +280,33 @@ internal static class ExcelParsingHelpers
         if (string.IsNullOrWhiteSpace(raw)) return result;
 
         var s = NormalizeSpaces(raw).Trim();
-        if (s.Equals("no preference", StringComparison.OrdinalIgnoreCase))
+
+        // Some templates use a placeholder like "no preference" (often with trailing commas/punctuation or NBSP)
+        // in preferred/prohibited technician columns. Treat it as "unset".
+        if (NormalizeHeader(s).Equals("no preference", StringComparison.OrdinalIgnoreCase))
             return result;
 
-        var parts = s.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var parts = s.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         foreach (var part in parts)
         {
             if (string.IsNullOrWhiteSpace(part)) continue;
 
             // Try exact name match (case-insensitive)
             var key = part.Trim();
+
+            // Ignore placeholder inside a list as well (e.g. "no preference,")
+            if (NormalizeHeader(key).Equals("no preference", StringComparison.OrdinalIgnoreCase))
+                continue;
+
             var match = nameToId.Keys.FirstOrDefault(k => k.Equals(key, StringComparison.OrdinalIgnoreCase));
+
+            // Fallback: compare normalized headers (helps if Excel injected punctuation / weird spaces)
+            if (match is null)
+            {
+                var normKey = NormalizeHeader(key);
+                match = nameToId.Keys.FirstOrDefault(k => NormalizeHeader(k).Equals(normKey, StringComparison.OrdinalIgnoreCase));
+            }
+
             if (match is null)
             {
                 warn?.Invoke($"Не знайдено техніка з іменем '{key}' у списку техніків.");

@@ -5,7 +5,6 @@
         public required string Id { get; set; }
         public required string Name { get; set; }
 
-
         public string? HomeAddressRaw { get; set; }
         public string? OfficeAddressRaw { get; set; }
 
