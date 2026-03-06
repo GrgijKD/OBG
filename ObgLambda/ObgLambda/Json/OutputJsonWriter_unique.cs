@@ -18,6 +18,7 @@ namespace ObgLambda.Json
     {
         private const string DefaultOutputFileName = "output.json";
         private const string DefaultTimetableFileName = "timetable.json";
+        private const string DefaultMasterCalendarFileName = "master-calendar.json";
         private const string DefaultTimeZone = "Europe/Kyiv"; // TODO: later derive from office coordinates
 
         // -----------------------------
@@ -75,6 +76,24 @@ namespace ObgLambda.Json
             int Day,
             string Date,
             List<TimetableRouteDto> Routes
+        );
+
+
+        public sealed record MasterCalendarServiceDto(
+            string SiteId,
+            string? SiteName
+        );
+
+        public sealed record MasterCalendarDayDto(
+            int Day,
+            string Date,
+            List<MasterCalendarServiceDto> Services
+        );
+
+        public sealed record MasterCalendarRootDto(
+            string CycleStartDate,
+            int HorizonDays,
+            List<MasterCalendarDayDto> Days
         );
 
         // ------------------------------------------------------------
@@ -149,6 +168,38 @@ namespace ObgLambda.Json
             catch (Exception ex)
             {
                 logger?.LogError($"[OutputJsonWriter] Failed to write timetable json: {ex}");
+            }
+        }
+
+
+        public static void TryWriteMasterCalendarJson(
+            IReadOnlyDictionary<int, List<ServiceSite>> masterSchedule,
+            DateTime cycleStartDate,
+            int horizonDays,
+            ILambdaLogger? logger = null,
+            string? outputDirOverride = null
+        )
+        {
+            try
+            {
+                var outputDir = ResolveMasterCalendarDir(outputDirOverride);
+                Directory.CreateDirectory(outputDir);
+
+                var outPath = Path.Combine(outputDir, DefaultMasterCalendarFileName);
+                var model = BuildMasterCalendarOutput(masterSchedule, cycleStartDate, horizonDays);
+
+                var jsonOptions = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+                };
+
+                File.WriteAllText(outPath, JsonSerializer.Serialize(model, jsonOptions));
+                logger?.LogInformation($"[OutputJsonWriter] Master calendar JSON записано: {outPath}");
+            }
+            catch (Exception ex)
+            {
+                logger?.LogError($"[OutputJsonWriter] Failed to write master calendar json: {ex}");
             }
         }
 
@@ -311,6 +362,39 @@ namespace ObgLambda.Json
             );
         }
 
+        private static MasterCalendarRootDto BuildMasterCalendarOutput(
+            IReadOnlyDictionary<int, List<ServiceSite>> masterSchedule,
+            DateTime cycleStartDate,
+            int horizonDays)
+        {
+            var safeHorizon = Math.Max(horizonDays, 0);
+            var days = new List<MasterCalendarDayDto>(safeHorizon);
+
+            for (var dayIndex = 0; dayIndex < safeHorizon; dayIndex++)
+            {
+                masterSchedule.TryGetValue(dayIndex, out var servicesForDay);
+                var services = (servicesForDay ?? new List<ServiceSite>())
+                    .OrderBy(s => s.Id, StringComparer.OrdinalIgnoreCase)
+                    .Select(site => new MasterCalendarServiceDto(
+                        SiteId: site.Id,
+                        SiteName: site.Name
+                    ))
+                    .ToList();
+
+                days.Add(new MasterCalendarDayDto(
+                    Day: dayIndex + 1,
+                    Date: cycleStartDate.Date.AddDays(dayIndex).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                    Services: services
+                ));
+            }
+
+            return new MasterCalendarRootDto(
+                CycleStartDate: cycleStartDate.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                HorizonDays: safeHorizon,
+                Days: days
+            );
+        }
+
         private static List<TimetableDayDto> BuildTimetableOutput(IEnumerable<WeeklyRoute> weeklyRoutes)
         {
             var days = (weeklyRoutes ?? Array.Empty<WeeklyRoute>()).ToList();
@@ -338,13 +422,15 @@ namespace ObgLambda.Json
                     ))
                     .ToList();
 
-                var date = routes
-                    .SelectMany(r => r.Stops)
-                    .Select(s => DateTime.TryParse(s.ExpectedArrivalTime, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var parsed) ? parsed.Date : (DateTime?)null)
-                    .Where(d => d.HasValue)
-                    .Select(d => d!.Value)
-                    .DefaultIfEmpty(DateTime.MinValue)
-                    .Min();
+                var date = day.Date != default
+                    ? day.Date.Date
+                    : routes
+                        .SelectMany(r => r.Stops)
+                        .Select(s => DateTime.TryParse(s.ExpectedArrivalTime, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var parsed) ? parsed.Date : (DateTime?)null)
+                        .Where(d => d.HasValue)
+                        .Select(d => d!.Value)
+                        .DefaultIfEmpty(DateTime.MinValue)
+                        .Min();
 
                 result.Add(new TimetableDayDto(
                     Day: i + 1,
@@ -553,6 +639,35 @@ namespace ObgLambda.Json
         {
             if (a == 0 || b == 0) return 0;
             return checked(a / Gcd(a, b) * b);
+        }
+
+        private static string ResolveMasterCalendarDir(string? outputDirOverride)
+        {
+            if (!string.IsNullOrWhiteSpace(outputDirOverride))
+                return outputDirOverride;
+
+            var env = Environment.GetEnvironmentVariable("OBG_MASTER_CALENDAR_DIR");
+            if (!string.IsNullOrWhiteSpace(env))
+                return env;
+
+            var cur = new DirectoryInfo(Directory.GetCurrentDirectory());
+            while (cur != null)
+            {
+                var input = Path.Combine(cur.FullName, "input");
+                var output = Path.Combine(cur.FullName, "output");
+                var lambda = Path.Combine(cur.FullName, "ObgLambda");
+                var services = Path.Combine(cur.FullName, "ObgServices");
+
+                if (Directory.Exists(input) && Directory.Exists(lambda) && Directory.Exists(services))
+                    return Path.Combine(cur.FullName, "master-calendar");
+
+                if (Directory.Exists(input) && Directory.Exists(output))
+                    return Path.Combine(cur.FullName, "master-calendar");
+
+                cur = cur.Parent;
+            }
+
+            return Path.Combine(Directory.GetCurrentDirectory(), "master-calendar");
         }
 
         private static string ResolveTimetableDir(string? outputDirOverride)
