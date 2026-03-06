@@ -1,0 +1,50 @@
+[
+  {
+    "Day": 1,
+    "Date": "2026-03-09",
+    "Routes": [
+      {
+        "TechnicianId": "allison-kennedy",
+        "TechnicianName": "Allison Kennedy",
+        "Stops": [
+          {
+            "SiteId": "br-wealth-management",
+            "SiteName": "BR Wealth Management",
+            "ExpectedArrivalTime": "2026-03-09T09:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          }
+        ],
+        "TotalDistanceKm": 5.398,
+        "TotalDurationMinutes": 68
+      },
+      {
+        "TechnicianId": "kris-schenck",
+        "TechnicianName": "Kris Schenck",
+        "Stops": [
+          {
+            "SiteId": "blue-cross",
+            "SiteName": "Blue Cross",
+            "ExpectedArrivalTime": "2026-03-09T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          }
+        ],
+        "TotalDistanceKm": 24.57,
+        "TotalDurationMinutes": 96
+      },
+      {
+        "TechnicianId": "maggie-christensen",
+        "TechnicianName": "Maggie Christensen",
+        "Stops": [],
+        "TotalDistanceKm": 0,
+        "TotalDurationMinutes": 0
+      },
+      {
+        "TechnicianId": "wendi-odell",
+        "TechnicianName": "Wendi O\u0027Dell",
+        "Stops": [],
+        "TotalDistanceKm": 0,
+        "TotalDurationMinutes": 0
+      }
+    ]
+  }
+]

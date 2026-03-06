@@ -10,6 +10,7 @@ namespace ObgServices.Services
         private const double WeeklyUtilizationWeight = 1000.0;
         private const double GeoBonusPerMatch = 30.0;
         private const double GeoOutlierPenalty = 40.0;
+        private const bool EnableDiagnostics = true;
 
         public static Dictionary<int, List<ServiceSite>> GenerateMasterSchedule(List<ServiceSite> sites, List<Technician> techs)
         {
@@ -39,6 +40,11 @@ namespace ObgServices.Services
                 .ThenByDescending(ctx => ctx.Site.VisitDuration)
                 .ToList();
 
+            if (EnableDiagnostics)
+            {
+                LogTechnicianCoverageSummary(sites, techs);
+            }
+
             int noFeasibleCount = 0;
             int capacityRejectedCount = 0;
             int placedVisits = 0;
@@ -48,7 +54,13 @@ namespace ObgServices.Services
                 if (ctx.FeasibleDayCount == 0)
                 {
                     noFeasibleCount++;
-                    Console.WriteLine($"[MASTER][WARN] Site '{ctx.Site.Id}' has no feasible days in the planning horizon. Allowed weekdays={ctx.FeasibleDayCount}, min eligible techs={(ctx.MinEligibleTechCount == int.MaxValue ? "n/a" : ctx.MinEligibleTechCount)}.");
+                    Console.WriteLine($"[MASTER][WARN] Site '{ctx.Site.Id}' has no feasible days in the planning horizon. FeasibleDayCount={ctx.FeasibleDayCount}, minEligibleTechs={(ctx.MinEligibleTechCount == int.MaxValue ? "n/a" : ctx.MinEligibleTechCount)}.");
+
+                    if (EnableDiagnostics)
+                    {
+                        LogSiteDayDiagnostics(ctx.Site, techs, horizon);
+                    }
+
                     continue;
                 }
 
@@ -615,5 +627,73 @@ namespace ObgServices.Services
             int MinEligibleTechCount,
             double LoadMinutes,
             int WeeklyLoadMinutes);
+
+        private static void LogSiteDayDiagnostics(ServiceSite site, List<Technician> techs, int horizon)
+        {
+            Console.WriteLine($"[MASTER][DIAG] Site '{site.Id}' / '{site.Name}'");
+            Console.WriteLine($"[MASTER][DIAG]   RequiredSkill={site.RequiredSkill}/{site.RequiredSkillLevel}, TechsNeeded={site.TechsNeeded}, VisitDuration={site.VisitDuration}, FreqRaw='{site.VisitFrequencyRaw}'");
+            Console.WriteLine($"[MASTER][DIAG]   AccessDays={(site.AccessWindows.Count == 0 ? "<none specified>" : string.Join(", ", site.AccessWindows.Select(w => w.Day)))}");
+            Console.WriteLine($"[MASTER][DIAG]   PermittedTechIds={(site.PermittedTechIds.Count == 0 ? "<all>" : string.Join(", ", site.PermittedTechIds))}");
+
+            for (int dayIndex = 0; dayIndex < horizon; dayIndex++)
+            {
+                var day = DayOfWeekFromIndex(dayIndex);
+                var eligible = new List<string>();
+                var rejected = new List<string>();
+
+                foreach (var tech in techs)
+                {
+                    var reason = ExplainTechDayFailure(tech, site, day);
+                    if (reason is null)
+                        eligible.Add(tech.Name);
+                    else
+                        rejected.Add($"{tech.Name}({reason})");
+                }
+
+                Console.WriteLine($"[MASTER][DIAG]   Day {dayIndex + 1} ({day}): eligible=[{string.Join(", ", eligible)}], rejected=[{string.Join("; ", rejected)}]");
+            }
+        }
+
+        private static string? ExplainTechDayFailure(Technician tech, ServiceSite site, DayOfWeek dayOfWeek)
+        {
+            var hardReason = TechnicianFilterService.ExplainHardConstraintFailure(tech, site);
+            if (hardReason is not null)
+                return hardReason;
+
+            bool techAvailable = tech.WorkingHours.Count == 0 || tech.WorkingHours.Any(w => w.Day == dayOfWeek);
+            if (!techAvailable)
+                return "tech-not-working-this-day";
+
+            bool siteAvailable = site.AccessWindows.Count == 0 || site.AccessWindows.Any(w => w.Day == dayOfWeek);
+            if (!siteAvailable)
+                return "site-not-available-this-day";
+
+            return null;
+        }
+
+        private static void LogTechnicianCoverageSummary(List<ServiceSite> sites, List<Technician> techs)
+        {
+            Console.WriteLine("[MASTER][DIAG] Technician coverage summary:");
+
+            foreach (var tech in techs)
+            {
+                int hardEligible = 0;
+                int dayEligible = 0;
+
+                foreach (var site in sites)
+                {
+                    if (TechnicianFilterService.ValidateHardConstraints(tech, site))
+                        hardEligible++;
+
+                    bool anyDayEligible = Enum.GetValues<DayOfWeek>()
+                        .Any(day => ExplainTechDayFailure(tech, site, day) is null);
+
+                    if (anyDayEligible)
+                        dayEligible++;
+                }
+
+                Console.WriteLine($"[MASTER][DIAG]   {tech.Name}: hardEligibleSites={hardEligible}, anyDayEligibleSites={dayEligible}");
+            }
+        }
     }
 }

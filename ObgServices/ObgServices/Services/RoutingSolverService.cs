@@ -29,6 +29,12 @@ namespace ObgServices.Services
             int distCallbackIndex = routing.RegisterTransitCallback((fromIndex, toIndex) =>
                 data.DistanceMatrix[manager.IndexToNode(fromIndex), manager.IndexToNode(toIndex)]);
 
+            int visitCallbackIndex = routing.RegisterTransitCallback((fromIndex, toIndex) =>
+            {
+                int toNode = manager.IndexToNode(toIndex);
+                return toNode >= siteOffset ? 1 : 0;
+            });
+
             for (int t = 0; t < techs.Count; t++)
             {
                 var tech = techs[t];
@@ -53,7 +59,45 @@ namespace ObgServices.Services
             // Виміри
             routing.AddDimension(timeCallbackIndex, 30, 1440, false, "Time");
             routing.AddDimension(distCallbackIndex, 0, 1_000_000, true, "Distance");
+            routing.AddDimension(visitCallbackIndex, 0, Math.Max(1, data.ExpandedSites.Count), true, "Visits");
             var timeDimension = routing.GetMutableDimension("Time");
+            var visitsDimension = routing.GetMutableDimension("Visits");
+
+            var vehiclesWithEligibleSites = Enumerable.Range(0, techs.Count)
+                .Where(v => data.ExpandedSites.Any(site => CanTechServeOnDay(techs[v], site, day)))
+                .ToList();
+
+            int targetActiveVehicles = Math.Min(vehiclesWithEligibleSites.Count, Math.Max(1, data.ExpandedSites.Count));
+            var prioritizedVehicles = vehiclesWithEligibleSites
+                .OrderBy(v => techs[v].CurrentScheduledHours)
+                .ThenBy(v => techs[v].Name)
+                .Take(targetActiveVehicles)
+                .ToHashSet();
+
+            int desiredMinStops = targetActiveVehicles == 0 ? 0 : Math.Max(1, data.ExpandedSites.Count / targetActiveVehicles);
+            int desiredMaxStops = targetActiveVehicles == 0 ? data.ExpandedSites.Count : (int)Math.Ceiling(data.ExpandedSites.Count / (double)targetActiveVehicles);
+
+            visitsDimension.SetGlobalSpanCostCoefficient(1_000);
+
+            for (int v = 0; v < techs.Count; v++)
+            {
+                long endIndex = routing.End(v);
+
+                if (!vehiclesWithEligibleSites.Contains(v))
+                    continue;
+
+                if (prioritizedVehicles.Contains(v))
+                {
+                    visitsDimension.SetCumulVarSoftLowerBound(endIndex, desiredMinStops, 30_000);
+                    visitsDimension.SetCumulVarSoftUpperBound(endIndex, desiredMaxStops, 8_000);
+                }
+                else
+                {
+                    visitsDimension.SetCumulVarSoftUpperBound(endIndex, desiredMaxStops + 1, 4_000);
+                }
+            }
+
+            Console.WriteLine($"[SOLVER][BALANCE] day={day}, totalStops={data.ExpandedSites.Count}, eligibleVehicles={vehiclesWithEligibleSites.Count}, targetActiveVehicles={targetActiveVehicles}, desiredMinStops={desiredMinStops}, desiredMaxStops={desiredMaxStops}, prioritized=[{string.Join(", ", prioritizedVehicles.Select(i => techs[i].Name))}]");
 
             for (int i = 0; i < data.ExpandedSites.Count; i++)
             {
@@ -72,11 +116,17 @@ namespace ObgServices.Services
                 timeDimension.CumulVar(nodeIndex)
                     .SetRange(data.TimeWindows[nodeNumber][0], data.TimeWindows[nodeNumber][1]);
 
-                // Жорстка фільтрація техніків
-                var allowed = Enumerable.Range(0, techs.Count)
-                    .Where(t => TechnicianFilterService.ValidateHardConstraints(techs[t], site))
+                // Жорстка фільтрація техніків з урахуванням дня
+                var allowedTechIndexes = Enumerable.Range(0, techs.Count)
+                    .Where(t => CanTechServeOnDay(techs[t], site, day))
+                    .ToList();
+
+                var allowed = allowedTechIndexes
                     .Select(t => (long)t)
                     .ToArray();
+
+                Console.WriteLine(
+                    $"[SOLVER][SITE] {site.Id} / {site.Name}: allowedTechs=[{string.Join(", ", allowedTechIndexes.Select(i => techs[i].Name))}]");
 
                 if (allowed.Length == 0)
                 {
@@ -189,6 +239,19 @@ namespace ObgServices.Services
             }
 
             return routes;
+        }
+
+        private static bool CanTechServeOnDay(Technician tech, ServiceSite site, DayOfWeek dayOfWeek)
+        {
+            if (!TechnicianFilterService.ValidateHardConstraints(tech, site))
+                return false;
+
+            bool techAvailable = tech.WorkingHours.Count == 0 || tech.WorkingHours.Any(w => w.Day == dayOfWeek);
+            if (!techAvailable)
+                return false;
+
+            bool siteAvailable = site.AccessWindows.Count == 0 || site.AccessWindows.Any(w => w.Day == dayOfWeek);
+            return siteAvailable;
         }
 
         private static DateTime GetNextMonday(DateTime fromDate)

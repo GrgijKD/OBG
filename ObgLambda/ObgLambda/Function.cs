@@ -68,6 +68,8 @@ public class Function
 
             var sitesForDate = horizon > 0 && masterSchedule.ContainsKey(currentDayIndex) ? masterSchedule[currentDayIndex] : [];
 
+            context.Logger.LogLine($"[DAY] {targetDate:dd.MM.yyyy} dayIndex={currentDayIndex}, scheduledSites={sitesForDate.Count}");
+
             if (sitesForDate.Count == 0)
             {
                 context.Logger.LogLine($"! Неможливо побудувати розклад на {targetDate:dd.MM.yyyy}: на цей день немає візитів");
@@ -84,10 +86,24 @@ public class Function
 
             context.Logger.LogLine($"Обробка дати {targetDate:dd.MM.yyyy}");
 
+            foreach (var tech in request.Technicians)
+            {
+                var weeklyOk = tech.CurrentScheduledHours < tech.MaxWeeklyHours;
+                var hardEligibleSites = sitesForDate
+                    .Where(s => TechnicianFilterService.ValidateHardConstraints(tech, s))
+                    .Select(s => s.Id)
+                    .ToList();
+
+                context.Logger.LogLine(
+                    $"[DAY][TECH] {tech.Name}: weekly={tech.CurrentScheduledHours:F1}/{tech.MaxWeeklyHours}, weeklyOk={weeklyOk}, hardEligibleToday={hardEligibleSites.Count}, sites=[{string.Join(", ", hardEligibleSites)}]");
+            }
+
             var availableTechs = request.Technicians
                 .Where(t => t.CurrentScheduledHours < t.MaxWeeklyHours)
                 .Where(t => sitesForDate.Any(s => TechnicianFilterService.ValidateHardConstraints(t, s)))
                 .ToList();
+
+            context.Logger.LogLine($"[DAY] availableTechs=[{string.Join(", ", availableTechs.Select(t => t.Name))}]");
 
             if (availableTechs.Count == 0)
             {
@@ -137,6 +153,7 @@ public class Function
         {
             var allRoutes = finalResult.SelectMany(w => w.Routes).ToList();
             OutputJsonWriter.TryWriteScheduleJson(allRoutes, request.Technicians, request.Sites, context.Logger);
+            OutputJsonWriter.TryWriteTimetableJson(finalResult, context.Logger);
         }
         catch
         {

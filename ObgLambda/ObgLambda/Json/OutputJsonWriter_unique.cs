@@ -17,6 +17,7 @@ namespace ObgLambda.Json
     public static class OutputJsonWriter
     {
         private const string DefaultOutputFileName = "output.json";
+        private const string DefaultTimetableFileName = "timetable.json";
         private const string DefaultTimeZone = "Europe/Kyiv"; // TODO: later derive from office coordinates
 
         // -----------------------------
@@ -53,6 +54,27 @@ namespace ObgLambda.Json
             List<TechnicianDirectoryItem> technicianDirectory,
             List<ServiceDirectoryItem> serviceDirectory,
             List<WeekDto> weeks
+        );
+
+        public sealed record TimetableStopDto(
+            string SiteId,
+            string? SiteName,
+            string ExpectedArrivalTime,
+            int Sequence
+        );
+
+        public sealed record TimetableRouteDto(
+            string TechnicianId,
+            string TechnicianName,
+            List<TimetableStopDto> Stops,
+            double TotalDistanceKm,
+            double TotalDurationMinutes
+        );
+
+        public sealed record TimetableDayDto(
+            int Day,
+            string Date,
+            List<TimetableRouteDto> Routes
         );
 
         // ------------------------------------------------------------
@@ -97,6 +119,36 @@ namespace ObgLambda.Json
             catch (Exception ex)
             {
                 logger?.LogError($"[OutputJsonWriter] Failed to write output json: {ex}");
+            }
+        }
+
+
+        public static void TryWriteTimetableJson(
+            IEnumerable<WeeklyRoute> weeklyRoutes,
+            ILambdaLogger? logger = null,
+            string? outputDirOverride = null
+        )
+        {
+            try
+            {
+                var outputDir = ResolveTimetableDir(outputDirOverride);
+                Directory.CreateDirectory(outputDir);
+
+                var outPath = Path.Combine(outputDir, DefaultTimetableFileName);
+                var model = BuildTimetableOutput(weeklyRoutes);
+
+                var jsonOptions = new JsonSerializerOptions
+                {
+                    WriteIndented = true,
+                    DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+                };
+
+                File.WriteAllText(outPath, JsonSerializer.Serialize(model, jsonOptions));
+                logger?.LogInformation($"[OutputJsonWriter] Timetable JSON записано: {outPath}");
+            }
+            catch (Exception ex)
+            {
+                logger?.LogError($"[OutputJsonWriter] Failed to write timetable json: {ex}");
             }
         }
 
@@ -257,6 +309,51 @@ namespace ObgLambda.Json
                 serviceDirectory: serviceDirectory.OrderBy(s => s.serviceId).ToList(),
                 weeks: weeks
             );
+        }
+
+        private static List<TimetableDayDto> BuildTimetableOutput(IEnumerable<WeeklyRoute> weeklyRoutes)
+        {
+            var days = (weeklyRoutes ?? Array.Empty<WeeklyRoute>()).ToList();
+            var result = new List<TimetableDayDto>(days.Count);
+
+            for (var i = 0; i < days.Count; i++)
+            {
+                var day = days[i];
+                var routes = (day.Routes ?? new List<OptimizedRoute>())
+                    .Select(route => new TimetableRouteDto(
+                        TechnicianId: route.TechnicianId,
+                        TechnicianName: route.TechnicianName,
+                        Stops: (route.Stops ?? new List<RouteStop>())
+                            .OrderBy(s => s.Sequence)
+                            .ThenBy(s => s.ExpectedArrivalTime)
+                            .Select(stop => new TimetableStopDto(
+                                SiteId: stop.SiteId,
+                                SiteName: stop.SiteName,
+                                ExpectedArrivalTime: stop.ExpectedArrivalTime.ToString("o", CultureInfo.InvariantCulture),
+                                Sequence: stop.Sequence
+                            ))
+                            .ToList(),
+                        TotalDistanceKm: Math.Round(route.TotalDistanceKm, 3),
+                        TotalDurationMinutes: Math.Round(route.TotalDurationMinutes, 1)
+                    ))
+                    .ToList();
+
+                var date = routes
+                    .SelectMany(r => r.Stops)
+                    .Select(s => DateTime.TryParse(s.ExpectedArrivalTime, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var parsed) ? parsed.Date : (DateTime?)null)
+                    .Where(d => d.HasValue)
+                    .Select(d => d!.Value)
+                    .DefaultIfEmpty(DateTime.MinValue)
+                    .Min();
+
+                result.Add(new TimetableDayDto(
+                    Day: i + 1,
+                    Date: date == DateTime.MinValue ? string.Empty : date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                    Routes: routes
+                ));
+            }
+
+            return result;
         }
 
         private static List<StopDto> BuildStopsForRoute(
@@ -456,6 +553,35 @@ namespace ObgLambda.Json
         {
             if (a == 0 || b == 0) return 0;
             return checked(a / Gcd(a, b) * b);
+        }
+
+        private static string ResolveTimetableDir(string? outputDirOverride)
+        {
+            if (!string.IsNullOrWhiteSpace(outputDirOverride))
+                return outputDirOverride;
+
+            var env = Environment.GetEnvironmentVariable("OBG_TIMETABLE_DIR");
+            if (!string.IsNullOrWhiteSpace(env))
+                return env;
+
+            var cur = new DirectoryInfo(Directory.GetCurrentDirectory());
+            while (cur != null)
+            {
+                var input = Path.Combine(cur.FullName, "input");
+                var output = Path.Combine(cur.FullName, "output");
+                var lambda = Path.Combine(cur.FullName, "ObgLambda");
+                var services = Path.Combine(cur.FullName, "ObgServices");
+
+                if (Directory.Exists(input) && Directory.Exists(lambda) && Directory.Exists(services))
+                    return Path.Combine(cur.FullName, "timetable");
+
+                if (Directory.Exists(input) && Directory.Exists(output))
+                    return Path.Combine(cur.FullName, "timetable");
+
+                cur = cur.Parent;
+            }
+
+            return Path.Combine(Directory.GetCurrentDirectory(), "timetable");
         }
 
         private static string ResolveOutputDir(string? outputDirOverride)
