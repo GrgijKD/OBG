@@ -136,7 +136,7 @@ public class Function
         try
         {
             var allRoutes = finalResult.SelectMany(w => w.Routes).ToList();
-            OutputJsonWriter.TryWriteScheduleJson(allRoutes, context.Logger);
+            OutputJsonWriter.TryWriteScheduleJson(allRoutes, request.Technicians, request.Sites, context.Logger);
         }
         catch
         {

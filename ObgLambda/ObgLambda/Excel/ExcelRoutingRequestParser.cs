@@ -74,6 +74,11 @@ public static class ExcelRoutingRequestParser
         int colTargetDays = FindColAny(ws, 2, warn: null, required: false,
             "target days for schedule", "target day", "target date", "target dates");
 
+
+// Optional: Explicit Technician ID (preferred for stability)
+int colTechId = FindColAny(ws, 2, warn: null, required: false,
+    "tech id", "technician id", "technicianid", "techid", "id");
+
         int colName = FindColAny(ws, 2, warn, required: true, "name", "technician name");
         int colHome = FindColAny(ws, 2, warn, required: true, "home address", "home");
         int colOffice = FindColAny(ws, 2, warn, required: false, "office address", "office");
@@ -122,17 +127,22 @@ public static class ExcelRoutingRequestParser
                 }
             }
 
-            // Unique technician id (prevents collisions on same name)
-            var idBase = ExcelParsingHelpers.Slugify(name);
-            var id = idBase;
-            int suffix = 2;
-            while (!usedIds.Add(id))
-            {
-                id = $"{idBase}-{suffix}";
-                suffix++;
-            }
+            
+// Technician ID (stable): use explicit column if present; otherwise derive from name.
+var explicitId = colTechId > 0 ? ExcelParsingHelpers.GetString(ws.Cell(row, colTechId)) : null;
+var idBase = !string.IsNullOrWhiteSpace(explicitId)
+    ? explicitId!
+    : ExcelParsingHelpers.Slugify(name);
 
-            var homeAddr = colHome > 0 ? ExcelParsingHelpers.GetString(ws.Cell(row, colHome)) : null;
+var id = idBase;
+int suffix = 2;
+while (!usedIds.Add(id))
+{
+    // If explicit IDs collide, keep deterministic by suffixing.
+    id = $"{idBase}-{suffix}";
+    suffix++;
+}
+var homeAddr = colHome > 0 ? ExcelParsingHelpers.GetString(ws.Cell(row, colHome)) : null;
             var officeAddr = colOffice > 0 ? ExcelParsingHelpers.GetString(ws.Cell(row, colOffice)) : null;
 
             var startsRaw = colStarts > 0 ? ExcelParsingHelpers.GetString(ws.Cell(row, colStarts)) : null;
@@ -265,6 +275,7 @@ public static class ExcelRoutingRequestParser
 
         int colLocationName = FindColAny(ws, 2, warn, required: true, "location name", "site name", "site name or code", "site code", "location");
         int colAddress = FindColAny(ws, 2, warn, required: true, "site address", "address");
+        int colSiteId = FindColAny(ws, 2, warn, required: false, "site id", "location id", "service id", "id");
         int colCurrentTech = FindColAny(ws, 2, warn, required: false, "current technician", "technician");
         int colBestAccess = FindColAny(ws, 2, warn, required: false, "site best accessed", "best accessed");
         int colTechsNeeded = FindColAny(ws, 2, warn, required: false, "how many techs needed", "techs needed");
@@ -306,9 +317,12 @@ public static class ExcelRoutingRequestParser
                 row++;
                 continue;
             }
+            // Site ID (stable): use explicit column if present; otherwise derive from name.
+            var explicitId = colSiteId > 0 ? ExcelParsingHelpers.GetString(ws.Cell(row, colSiteId)) : null;
+            var idBase = !string.IsNullOrWhiteSpace(explicitId)
+                ? explicitId!
+                : ExcelParsingHelpers.Slugify(locName);
 
-            // Unique site id
-            var idBase = ExcelParsingHelpers.Slugify(locName);
             var id = idBase;
             int suffix = 2;
             while (!usedIds.Add(id))
