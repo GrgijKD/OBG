@@ -143,8 +143,9 @@ namespace ObgServices.Services
             var timeDimension = routing.GetMutableDimension("Time");
             var distDimension = routing.GetMutableDimension("Distance");
 
-            int daysUntilTarget = (int)dayOfWeek - (int)DateTime.Today.DayOfWeek;
-            DateTime baseDate = DateTime.Today.AddDays(daysUntilTarget);
+            DateTime anchorDate = GetNextMonday(DateTime.Today);
+            int daysOffset = ((int)dayOfWeek - (int)DayOfWeek.Monday + 7) % 7;
+            DateTime baseDate = anchorDate.AddDays(daysOffset);
 
             for (int i = 0; i < techs.Count; i++)
             {
@@ -188,6 +189,15 @@ namespace ObgServices.Services
             }
 
             return routes;
+        }
+
+        private static DateTime GetNextMonday(DateTime fromDate)
+        {
+            var date = fromDate.Date;
+            int daysUntilMonday = ((int)DayOfWeek.Monday - (int)date.DayOfWeek + 7) % 7;
+            if (daysUntilMonday == 0)
+                daysUntilMonday = 7;
+            return date.AddDays(daysUntilMonday);
         }
     }
 }

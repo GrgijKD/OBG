@@ -54,7 +54,7 @@ public class Function
 
         var datesToProcess = request.TargetDates != null && request.TargetDates.Count != 0
             ? request.TargetDates
-            : [DateTime.Today];
+            : [cycleStartDate];
 
         foreach (var t in request.Technicians) t.CurrentScheduledHours = 0;
 
