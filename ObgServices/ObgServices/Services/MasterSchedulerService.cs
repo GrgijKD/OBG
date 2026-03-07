@@ -10,9 +10,10 @@ namespace ObgServices.Services
         private const double WeeklyUtilizationWeight = 1000.0;
         private const double GeoBonusPerMatch = 30.0;
         private const double GeoOutlierPenalty = 40.0;
-        private const bool EnableDiagnostics = true;
+        private const bool EnableDiagnostics = false;
+        private const bool EnableSiteWarnings = false;
 
-        public static Dictionary<int, List<ServiceSite>> GenerateMasterSchedule(List<ServiceSite> sites, List<Technician> techs)
+        public static Dictionary<int, List<ServiceSite>> GenerateMasterSchedule(List<ServiceSite> sites, List<Technician> techs, Dictionary<string, string>? serviceIdMap = null)
         {
             if (sites.Count == 0)
                 return new Dictionary<int, List<ServiceSite>>();
@@ -48,13 +49,22 @@ namespace ObgServices.Services
             int noFeasibleCount = 0;
             int capacityRejectedCount = 0;
             int placedVisits = 0;
+            int totalRequestedVisits = siteContexts.Sum(ctx => GetRequestedVisitsForSite(ctx.Site, horizon));
 
             foreach (var ctx in siteContexts)
             {
+                int expectedVisits = GetRequestedVisitsForSite(ctx.Site, horizon);
+
                 if (ctx.FeasibleDayCount == 0)
                 {
                     noFeasibleCount++;
-                    Console.WriteLine($"[MASTER][WARN] Site '{ctx.Site.Id}' has no feasible days in the planning horizon. FeasibleDayCount={ctx.FeasibleDayCount}, minEligibleTechs={(ctx.MinEligibleTechCount == int.MaxValue ? "n/a" : ctx.MinEligibleTechCount)}.");
+                    LogMasterMiss(ctx.Site, serviceIdMap, expectedVisits, expectedVisits,
+                        $"no-feasible-days eligibleTechsMax={GetMaxEligibleTechCount(ctx)}/{Math.Max(1, ctx.Site.TechsNeeded)}");
+
+                    if (EnableSiteWarnings)
+                    {
+                        Console.WriteLine($"[MASTER][WARN] Site '{ctx.Site.Id}' has no feasible days in the planning horizon. FeasibleDayCount={ctx.FeasibleDayCount}, minEligibleTechs={(ctx.MinEligibleTechCount == int.MaxValue ? "n/a" : ctx.MinEligibleTechCount)}.");
+                    }
 
                     if (EnableDiagnostics)
                     {
@@ -72,15 +82,22 @@ namespace ObgServices.Services
                     ScheduleByInterval(ctx, schedule, dailyLoad, weeklyLoad, remainingCapacity, weeklyCapacity, horizon);
 
                 int after = CountScheduledVisits(schedule, ctx.Site);
-                if (after == before)
+                int placedForSite = after - before;
+                if (placedForSite == 0)
                     capacityRejectedCount++;
-                else
-                    placedVisits += after - before;
+
+                placedVisits += placedForSite;
+
+                int missedVisits = Math.Max(0, expectedVisits - placedForSite);
+                if (missedVisits > 0)
+                {
+                    LogMasterMiss(ctx.Site, serviceIdMap, missedVisits, expectedVisits, "capacity-or-placement-conflict");
+                }
             }
 
             RebalanceFlexibleSites(schedule, dailyLoad, weeklyLoad, remainingCapacity, weeklyCapacity, horizon);
 
-            Console.WriteLine($"[MASTER] PlacementSummary: placedVisits={placedVisits}, noFeasibleSites={noFeasibleCount}, capacityRejectedSites={capacityRejectedCount}");
+            Console.WriteLine($"[MASTER] PlacementSummary: placedVisits={placedVisits}/{totalRequestedVisits}, noFeasibleSites={noFeasibleCount}, capacityRejectedSites={capacityRejectedCount}");
             for (int dayIndex = 0; dayIndex < horizon; dayIndex++)
             {
                 double cap = Math.Max(1.0, dayCapacity[dayIndex]);
@@ -89,6 +106,48 @@ namespace ObgServices.Services
             }
 
             return schedule;
+        }
+
+        private static void LogMasterMiss(ServiceSite site, Dictionary<string, string>? serviceIdMap, int missedVisits, int expectedVisits, string reason)
+        {
+            string displayId = GetDisplaySiteId(site, serviceIdMap);
+            Console.WriteLine($"[MASTER][MISS] site='{displayId}' name='{site.Name}' missedVisits={missedVisits}/{expectedVisits} reason={reason}");
+        }
+
+        private static string GetDisplaySiteId(ServiceSite site, Dictionary<string, string>? serviceIdMap)
+        {
+            if (serviceIdMap is not null && serviceIdMap.TryGetValue(site.Id, out var displayId) && !string.IsNullOrWhiteSpace(displayId))
+                return displayId;
+
+            return site.Id;
+        }
+
+        private static int GetRequestedVisitsForSite(ServiceSite site, int horizon)
+        {
+            if (horizon <= 0)
+                return 0;
+
+            if (site.VisitIntervalDays <= 7 && site.VisitsPerInterval > 1)
+            {
+                int fullWeeks = horizon / 7;
+                int remainderDays = horizon % 7;
+                int perWeek = Math.Max(1, (int)site.VisitsPerInterval);
+                int extra = 0;
+                if (remainderDays > 0)
+                    extra = Math.Min(perWeek, remainderDays);
+                return fullWeeks * perWeek + extra;
+            }
+
+            int intervalDays = Math.Max(1, site.VisitIntervalDays);
+            int count = 0;
+            for (int dayIndex = 0; dayIndex < horizon; dayIndex += intervalDays)
+                count++;
+            return count;
+        }
+
+        private static int GetMaxEligibleTechCount(SitePlanningContext ctx)
+        {
+            return ctx.EligibleTechCount.Length == 0 ? 0 : ctx.EligibleTechCount.Max();
         }
 
         private static SitePlanningContext BuildSiteContext(ServiceSite site, List<Technician> techs, int horizon)
@@ -165,7 +224,7 @@ namespace ObgServices.Services
 
             if (bestStartDay == -1)
             {
-                Console.WriteLine($"[MASTER][WARN] Site '{ctx.Site.Id}' could not be placed without breaking day/weekly capacity.");
+                if (EnableSiteWarnings) Console.WriteLine($"[MASTER][WARN] Site '{ctx.Site.Id}' could not be placed without breaking day/weekly capacity.");
                 return;
             }
 
@@ -188,7 +247,7 @@ namespace ObgServices.Services
 
             if (selectedDays.Count == 0)
             {
-                Console.WriteLine($"[MASTER][WARN] Weekly site '{ctx.Site.Id}' has no valid weekly pattern.");
+                if (EnableSiteWarnings) Console.WriteLine($"[MASTER][WARN] Weekly site '{ctx.Site.Id}' has no valid weekly pattern.");
                 return;
             }
 

@@ -6,6 +6,7 @@ namespace ObgServices.Services
 {
     public class RoutingSolverService
     {
+        private const bool EnableSolverLogs = false;
         public static List<OptimizedRoute> SolveRouting(RoutingDataModel data, List<Technician> techs, DayOfWeek day)
         {
             if (techs.Count == 0)
@@ -97,7 +98,10 @@ namespace ObgServices.Services
                 }
             }
 
-            Console.WriteLine($"[SOLVER][BALANCE] day={day}, totalStops={data.ExpandedSites.Count}, eligibleVehicles={vehiclesWithEligibleSites.Count}, targetActiveVehicles={targetActiveVehicles}, desiredMinStops={desiredMinStops}, desiredMaxStops={desiredMaxStops}, prioritized=[{string.Join(", ", prioritizedVehicles.Select(i => techs[i].Name))}]");
+            if (EnableSolverLogs)
+            {
+                Console.WriteLine($"[SOLVER][BALANCE] day={day}, totalStops={data.ExpandedSites.Count}, eligibleVehicles={vehiclesWithEligibleSites.Count}, targetActiveVehicles={targetActiveVehicles}, desiredMinStops={desiredMinStops}, desiredMaxStops={desiredMaxStops}, prioritized=[{string.Join(", ", prioritizedVehicles.Select(i => techs[i].Name))}]");
+            }
 
             for (int i = 0; i < data.ExpandedSites.Count; i++)
             {
@@ -125,8 +129,11 @@ namespace ObgServices.Services
                     .Select(t => (long)t)
                     .ToArray();
 
-                Console.WriteLine(
-                    $"[SOLVER][SITE] {site.Id} / {site.Name}: allowedTechs=[{string.Join(", ", allowedTechIndexes.Select(i => techs[i].Name))}]");
+                if (EnableSolverLogs)
+                {
+                    Console.WriteLine(
+                        $"[SOLVER][SITE] {site.Id} / {site.Name}: allowedTechs=[{string.Join(", ", allowedTechIndexes.Select(i => techs[i].Name))}]");
+                }
 
                 if (allowed.Length == 0)
                 {

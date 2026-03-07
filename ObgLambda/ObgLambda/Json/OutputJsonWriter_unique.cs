@@ -19,12 +19,11 @@ namespace ObgLambda.Json
         private const string DefaultOutputFileName = "output.json";
         private const string DefaultTimetableFileName = "timetable.json";
         private const string DefaultMasterCalendarFileName = "master-calendar.json";
-        private const string DefaultTimeZone = "Europe/Kyiv"; // TODO: later derive from office coordinates
 
         // -----------------------------
         // DTOs for the agreed presentation JSON
         // -----------------------------
-        public sealed record Meta(string timeZone, string scheduleStartDate, int horizonDays);
+        public sealed record Meta(string scheduleStartDate, int horizonDays);
 
         public sealed record TechnicianDirectoryItem(string techId, string name);
         public sealed record ServiceDirectoryItem(string serviceId, string name);
@@ -133,11 +132,11 @@ namespace ObgLambda.Json
                 };
 
                 File.WriteAllText(outPath, JsonSerializer.Serialize(model, jsonOptions));
-                logger?.LogInformation($"[OutputJsonWriter] JSON записано: {outPath}");
+                logger?.LogLine($"[EXPORT] JSON записано: {outPath}");
             }
             catch (Exception ex)
             {
-                logger?.LogError($"[OutputJsonWriter] Failed to write output json: {ex}");
+                logger?.LogLine($"[EXPORT][ERROR] Failed to write output json: {ex.Message}");
             }
         }
 
@@ -163,11 +162,11 @@ namespace ObgLambda.Json
                 };
 
                 File.WriteAllText(outPath, JsonSerializer.Serialize(model, jsonOptions));
-                logger?.LogInformation($"[OutputJsonWriter] Timetable JSON записано: {outPath}");
+                logger?.LogLine($"[EXPORT] Timetable JSON записано: {outPath}");
             }
             catch (Exception ex)
             {
-                logger?.LogError($"[OutputJsonWriter] Failed to write timetable json: {ex}");
+                logger?.LogLine($"[EXPORT][ERROR] Failed to write timetable json: {ex.Message}");
             }
         }
 
@@ -176,6 +175,7 @@ namespace ObgLambda.Json
             IReadOnlyDictionary<int, List<ServiceSite>> masterSchedule,
             DateTime cycleStartDate,
             int horizonDays,
+            IEnumerable<ServiceSite>? allSites = null,
             ILambdaLogger? logger = null,
             string? outputDirOverride = null
         )
@@ -186,7 +186,7 @@ namespace ObgLambda.Json
                 Directory.CreateDirectory(outputDir);
 
                 var outPath = Path.Combine(outputDir, DefaultMasterCalendarFileName);
-                var model = BuildMasterCalendarOutput(masterSchedule, cycleStartDate, horizonDays);
+                var model = BuildMasterCalendarOutput(masterSchedule, cycleStartDate, horizonDays, allSites);
 
                 var jsonOptions = new JsonSerializerOptions
                 {
@@ -195,11 +195,11 @@ namespace ObgLambda.Json
                 };
 
                 File.WriteAllText(outPath, JsonSerializer.Serialize(model, jsonOptions));
-                logger?.LogInformation($"[OutputJsonWriter] Master calendar JSON записано: {outPath}");
+                logger?.LogLine($"[EXPORT] Master calendar JSON записано: {outPath}");
             }
             catch (Exception ex)
             {
-                logger?.LogError($"[OutputJsonWriter] Failed to write master calendar json: {ex}");
+                logger?.LogLine($"[EXPORT][ERROR] Failed to write master calendar json: {ex.Message}");
             }
         }
 
@@ -355,7 +355,7 @@ namespace ObgLambda.Json
             var weeks = BuildWeeks(dayDtos);
 
             return new OutputRoot(
-                meta: new Meta(DefaultTimeZone, scheduleStart.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), horizonDays),
+                meta: new Meta(scheduleStart.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), horizonDays),
                 technicianDirectory: techDirectory.OrderBy(t => t.techId).ToList(),
                 serviceDirectory: serviceDirectory.OrderBy(s => s.serviceId).ToList(),
                 weeks: weeks
@@ -365,10 +365,13 @@ namespace ObgLambda.Json
         private static MasterCalendarRootDto BuildMasterCalendarOutput(
             IReadOnlyDictionary<int, List<ServiceSite>> masterSchedule,
             DateTime cycleStartDate,
-            int horizonDays)
+            int horizonDays,
+            IEnumerable<ServiceSite>? allSites)
         {
             var safeHorizon = Math.Max(horizonDays, 0);
             var days = new List<MasterCalendarDayDto>(safeHorizon);
+
+            var siteIdMap = BuildServiceIdMapForPresentation(allSites, masterSchedule);
 
             for (var dayIndex = 0; dayIndex < safeHorizon; dayIndex++)
             {
@@ -376,7 +379,7 @@ namespace ObgLambda.Json
                 var services = (servicesForDay ?? new List<ServiceSite>())
                     .OrderBy(s => s.Id, StringComparer.OrdinalIgnoreCase)
                     .Select(site => new MasterCalendarServiceDto(
-                        SiteId: site.Id,
+                        SiteId: siteIdMap.TryGetValue(site.Id, out var mappedId) ? mappedId : site.Id,
                         SiteName: site.Name
                     ))
                     .ToList();
@@ -393,6 +396,40 @@ namespace ObgLambda.Json
                 HorizonDays: safeHorizon,
                 Days: days
             );
+        }
+
+
+        private static Dictionary<string, string> BuildServiceIdMapForPresentation(
+            IEnumerable<ServiceSite>? allSites,
+            IReadOnlyDictionary<int, List<ServiceSite>> masterSchedule)
+        {
+            var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            IEnumerable<ServiceSite> source;
+            if (allSites != null && allSites.Any())
+            {
+                source = allSites;
+            }
+            else
+            {
+                source = masterSchedule
+                    .OrderBy(kvp => kvp.Key)
+                    .SelectMany(kvp => kvp.Value ?? new List<ServiceSite>())
+                    .GroupBy(s => s.Id, StringComparer.OrdinalIgnoreCase)
+                    .Select(g => g.First());
+            }
+
+            var seq = 0;
+            foreach (var site in source)
+            {
+                if (string.IsNullOrWhiteSpace(site.Id) || map.ContainsKey(site.Id))
+                    continue;
+
+                seq++;
+                map[site.Id] = $"srv-{seq}";
+            }
+
+            return map;
         }
 
         private static List<TimetableDayDto> BuildTimetableOutput(IEnumerable<WeeklyRoute> weeklyRoutes)

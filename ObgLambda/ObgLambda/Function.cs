@@ -6,8 +6,6 @@ using ObgServices.Models;
 using ObgServices.Services;
 using System.Text;
 
-//[assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
-
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
 namespace ObgLambda;
@@ -24,12 +22,11 @@ public class Function
 
             if (UseExcelInput())
             {
-                context.Logger.LogLine("[BOOT] Excel input mode = ON");
                 var excel = ExcelInputLoader.TryLoadFirstExcel(context.Logger);
 
                 if (excel is null)
                 {
-                    context.Logger.LogLine("Excel input не знайдено в папці 'input'. JSON з поля ігнорується (поки що).");
+                    context.Logger.LogLine("Excel input не знайдено в папці 'input'.");
                     return [];
                 }
 
@@ -46,33 +43,33 @@ public class Function
                     return [];
                 }
             }
-            else
-            {
-                context.Logger.LogLine("[BOOT] Excel input mode = OFF");
-            }
 
             context.Logger.LogLine("Генерація Майстер-розкладу...");
             var geocodingService = new GeocodingService(_locationClient);
 
-            var masterSchedule = MasterSchedulerService.GenerateMasterSchedule(request.Sites, request.Technicians);
+            var serviceIdMap = request.Sites
+                .Select((site, index) => new { site.Id, DisplayId = $"srv-{index + 1}" })
+                .ToDictionary(x => x.Id, x => x.DisplayId);
+
+            var masterSchedule = MasterSchedulerService.GenerateMasterSchedule(request.Sites, request.Technicians, serviceIdMap);
             int horizon = masterSchedule.Count;
             DateTime cycleStartDate = GetNextMonday(DateTime.Today);
 
-            context.Logger.LogLine($"[MASTER-EXPORT] start. cycleStartDate={cycleStartDate:yyyy-MM-dd}, horizon={horizon}");
+            OutputJsonWriter.TryWriteMasterCalendarJson(masterSchedule, cycleStartDate, horizon, request.Sites, context.Logger);
 
-            OutputJsonWriter.TryWriteMasterCalendarJson(masterSchedule, cycleStartDate, horizon, context.Logger);
+            int routePlanningDays = RoutingPlanningConfigLoader.LoadRoutePlanningDays(context.Logger);
+            context.Logger.LogLine($"[CONFIG] RoutePlanningDays={routePlanningDays}");
 
-            context.Logger.LogLine("[MASTER-EXPORT] done");
-
-            var finalResult = new List<WeeklyRoute>();
-
-            var datesToProcess = request.TargetDates != null && request.TargetDates.Count != 0
+            var allDates = request.TargetDates != null && request.TargetDates.Count != 0
                 ? request.TargetDates.OrderBy(d => d).ToList()
                 : Enumerable.Range(0, Math.Max(horizon, 7))
                     .Select(offset => cycleStartDate.AddDays(offset))
                     .ToList();
 
-            context.Logger.LogLine($"[PLAN] datesToProcess={datesToProcess.Count}");
+            var datesToProcess = allDates.Take(routePlanningDays).ToList();
+            context.Logger.LogLine($"[PLAN] masterDays={allDates.Count}, routingDays={datesToProcess.Count}");
+
+            var finalResult = new List<WeeklyRoute>();
 
             foreach (var t in request.Technicians)
                 t.CurrentScheduledHours = 0;
@@ -95,7 +92,6 @@ public class Function
 
                     if (sitesForDate.Count == 0)
                     {
-                        context.Logger.LogLine($"! Неможливо побудувати розклад на {targetDate:dd.MM.yyyy}: на цей день немає візитів");
                         finalResult.Add(new WeeklyRoute
                         {
                             Day = targetDate.DayOfWeek,
@@ -113,30 +109,14 @@ public class Function
 
                     lastProcessedWeekNum = currentWeekNum;
 
-                    context.Logger.LogLine($"Обробка дати {targetDate:dd.MM.yyyy}");
-
-                    foreach (var tech in request.Technicians)
-                    {
-                        var weeklyOk = tech.CurrentScheduledHours < tech.MaxWeeklyHours;
-                        var hardEligibleSites = sitesForDate
-                            .Where(s => TechnicianFilterService.ValidateHardConstraints(tech, s))
-                            .Select(s => s.Id)
-                            .ToList();
-
-                        context.Logger.LogLine(
-                            $"[DAY][TECH] {tech.Name}: weekly={tech.CurrentScheduledHours:F1}/{tech.MaxWeeklyHours}, weeklyOk={weeklyOk}, hardEligibleToday={hardEligibleSites.Count}, sites=[{string.Join(", ", hardEligibleSites)}]");
-                    }
-
                     var availableTechs = request.Technicians
                         .Where(t => t.CurrentScheduledHours < t.MaxWeeklyHours)
                         .Where(t => sitesForDate.Any(s => TechnicianFilterService.ValidateHardConstraints(t, s)))
                         .ToList();
 
-                    context.Logger.LogLine($"[DAY] availableTechs=[{string.Join(", ", availableTechs.Select(t => t.Name))}]");
-
                     if (availableTechs.Count == 0)
                     {
-                        context.Logger.LogLine($"! Немає доступних техніків на {targetDate:dd.MM.yyyy}");
+                        context.Logger.LogLine($"[DAY] {targetDate:dd.MM.yyyy}: activeTechs=0, stops=0, totalHours=0.0");
                         finalResult.Add(new WeeklyRoute
                         {
                             Day = targetDate.DayOfWeek,
@@ -146,28 +126,33 @@ public class Function
                         continue;
                     }
 
-                    context.Logger.LogLine($"[ROUTING] create model for {targetDate:dd.MM.yyyy}");
                     var routingData = await RoutingDataFactory.CreateModel(availableTechs, sitesForDate, geocodingService);
-
-                    context.Logger.LogLine($"[ROUTING] solve for {targetDate:dd.MM.yyyy}");
                     var dailyRoutes = RoutingSolverService.SolveRouting(routingData, availableTechs, targetDate.DayOfWeek);
 
                     if (dailyRoutes != null && dailyRoutes.Any(r => r.Stops.Count > 0))
                     {
-                        context.Logger.LogLine($"Побудовано розклад техніків на {targetDate:dd.MM.yyyy}:");
+                        int activeTechs = 0;
+                        int totalStops = 0;
+                        double totalHours = 0.0;
 
                         foreach (var route in dailyRoutes)
                         {
+                            if (route.Stops.Count > 0)
+                                activeTechs++;
+
+                            totalStops += route.Stops.Count;
+
+                            double addedHours = route.TotalDurationMinutes / 60.0;
+                            totalHours += addedHours;
+
                             var tech = request.Technicians.FirstOrDefault(t => t.Name == route.TechnicianName);
                             if (tech != null)
                             {
-                                double addedHours = route.TotalDurationMinutes / 60.0;
                                 tech.CurrentScheduledHours += addedHours;
-
-                                context.Logger.LogLine(
-                                    $"Для {tech.Name} - {route.Stops.Count} зупинок, +{addedHours:F1} годин, усього: {tech.CurrentScheduledHours:F1}/{tech.MaxWeeklyHours}");
                             }
                         }
+
+                        context.Logger.LogLine($"[DAY] {targetDate:dd.MM.yyyy}: activeTechs={activeTechs}, stops={totalStops}, totalHours={totalHours:F1}");
 
                         finalResult.Add(new WeeklyRoute
                         {
@@ -178,7 +163,7 @@ public class Function
                     }
                     else
                     {
-                        context.Logger.LogLine($"! Неможливо побудувати розклад на {targetDate:dd.MM.yyyy}: рішення не знайдено");
+                        context.Logger.LogLine($"[DAY] {targetDate:dd.MM.yyyy}: activeTechs=0, stops=0, totalHours=0.0");
                         finalResult.Add(new WeeklyRoute
                         {
                             Day = targetDate.DayOfWeek,
@@ -189,7 +174,7 @@ public class Function
                 }
                 catch (Exception exDay)
                 {
-                    context.Logger.LogLine($"[DAY-ERROR] {targetDate:dd.MM.yyyy}: {exDay}");
+                    context.Logger.LogLine($"[DAY-ERROR] {targetDate:dd.MM.yyyy}: {exDay.Message}");
                     WriteCrashFile($"Day error {targetDate:dd.MM.yyyy}:{Environment.NewLine}{exDay}");
 
                     finalResult.Add(new WeeklyRoute
@@ -201,24 +186,16 @@ public class Function
                 }
             }
 
-            context.Logger.LogLine($"[EXPORT] finalResult days={finalResult.Count}");
-
             var allRoutes = finalResult.SelectMany(w => w.Routes).ToList();
 
-            context.Logger.LogLine($"[EXPORT] allRoutes count={allRoutes.Count}");
             OutputJsonWriter.TryWriteScheduleJson(allRoutes, request.Technicians, request.Sites, context.Logger);
 
-            context.Logger.LogLine("[EXPORT] output.json done");
-            OutputJsonWriter.TryWriteTimetableJson(finalResult, context.Logger);
-
-            context.Logger.LogLine("[EXPORT] timetable.json done");
             context.Logger.LogLine("[DONE] Function finished successfully");
-
             return finalResult;
         }
         catch (Exception ex)
         {
-            context.Logger.LogLine($"[FATAL] {ex}");
+            context.Logger.LogLine($"[FATAL] {ex.Message}");
             WriteCrashFile($"Fatal error:{Environment.NewLine}{ex}");
             return [];
         }
@@ -257,7 +234,7 @@ public class Function
         }
     }
 
-    private static string ResolveProjectRoot()
+    public static string ResolveProjectRoot()
     {
         var cur = new DirectoryInfo(Directory.GetCurrentDirectory());
 
