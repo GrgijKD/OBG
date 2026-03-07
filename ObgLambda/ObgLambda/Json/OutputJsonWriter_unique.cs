@@ -176,6 +176,7 @@ namespace ObgLambda.Json
             IReadOnlyDictionary<int, List<ServiceSite>> masterSchedule,
             DateTime cycleStartDate,
             int horizonDays,
+            IEnumerable<ServiceSite>? allSites = null,
             ILambdaLogger? logger = null,
             string? outputDirOverride = null
         )
@@ -186,7 +187,7 @@ namespace ObgLambda.Json
                 Directory.CreateDirectory(outputDir);
 
                 var outPath = Path.Combine(outputDir, DefaultMasterCalendarFileName);
-                var model = BuildMasterCalendarOutput(masterSchedule, cycleStartDate, horizonDays);
+                var model = BuildMasterCalendarOutput(masterSchedule, cycleStartDate, horizonDays, allSites);
 
                 var jsonOptions = new JsonSerializerOptions
                 {
@@ -365,10 +366,13 @@ namespace ObgLambda.Json
         private static MasterCalendarRootDto BuildMasterCalendarOutput(
             IReadOnlyDictionary<int, List<ServiceSite>> masterSchedule,
             DateTime cycleStartDate,
-            int horizonDays)
+            int horizonDays,
+            IEnumerable<ServiceSite>? allSites)
         {
             var safeHorizon = Math.Max(horizonDays, 0);
             var days = new List<MasterCalendarDayDto>(safeHorizon);
+
+            var siteIdMap = BuildServiceIdMapForPresentation(allSites, masterSchedule);
 
             for (var dayIndex = 0; dayIndex < safeHorizon; dayIndex++)
             {
@@ -376,7 +380,7 @@ namespace ObgLambda.Json
                 var services = (servicesForDay ?? new List<ServiceSite>())
                     .OrderBy(s => s.Id, StringComparer.OrdinalIgnoreCase)
                     .Select(site => new MasterCalendarServiceDto(
-                        SiteId: site.Id,
+                        SiteId: siteIdMap.TryGetValue(site.Id, out var mappedId) ? mappedId : site.Id,
                         SiteName: site.Name
                     ))
                     .ToList();
@@ -393,6 +397,40 @@ namespace ObgLambda.Json
                 HorizonDays: safeHorizon,
                 Days: days
             );
+        }
+
+
+        private static Dictionary<string, string> BuildServiceIdMapForPresentation(
+            IEnumerable<ServiceSite>? allSites,
+            IReadOnlyDictionary<int, List<ServiceSite>> masterSchedule)
+        {
+            var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            IEnumerable<ServiceSite> source;
+            if (allSites != null && allSites.Any())
+            {
+                source = allSites;
+            }
+            else
+            {
+                source = masterSchedule
+                    .OrderBy(kvp => kvp.Key)
+                    .SelectMany(kvp => kvp.Value ?? new List<ServiceSite>())
+                    .GroupBy(s => s.Id, StringComparer.OrdinalIgnoreCase)
+                    .Select(g => g.First());
+            }
+
+            var seq = 0;
+            foreach (var site in source)
+            {
+                if (string.IsNullOrWhiteSpace(site.Id) || map.ContainsKey(site.Id))
+                    continue;
+
+                seq++;
+                map[site.Id] = $"srv-{seq}";
+            }
+
+            return map;
         }
 
         private static List<TimetableDayDto> BuildTimetableOutput(IEnumerable<WeeklyRoute> weeklyRoutes)

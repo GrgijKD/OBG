@@ -4,120 +4,157 @@
     "Date": "2026-03-09",
     "Routes": [
       {
-        "TechnicianId": "allison-kennedy",
-        "TechnicianName": "Allison Kennedy",
+        "TechnicianId": "yes",
+        "TechnicianName": "Donald",
         "Stops": [
           {
-            "SiteId": "charles-schwab-ambius",
-            "SiteName": "Charles Schwab (Ambius)",
+            "SiteId": "no",
+            "SiteName": "CW-1 M St, SE",
             "ExpectedArrivalTime": "2026-03-09T08:00:00.0000000\u002B02:00",
             "Sequence": 0
           },
           {
-            "SiteId": "buffington-mohr-mcneal-formerly-tbfm",
-            "SiteName": "Buffington Mohr McNeal (formerly TBFM)",
-            "ExpectedArrivalTime": "2026-03-09T09:45:00.0000000\u002B02:00",
+            "SiteId": "yes",
+            "SiteName": "zNALC 100 Indiana",
+            "ExpectedArrivalTime": "2026-03-09T09:01:00.0000000\u002B02:00",
             "Sequence": 1
           },
           {
-            "SiteId": "pat-and-john-poreba",
-            "SiteName": "Pat and John Poreba",
-            "ExpectedArrivalTime": "2026-03-09T10:27:00.0000000\u002B02:00",
+            "SiteId": "no-14",
+            "SiteName": "LPC -1325 G St. NW",
+            "ExpectedArrivalTime": "2026-03-09T09:33:00.0000000\u002B02:00",
             "Sequence": 2
           },
           {
-            "SiteId": "caprock",
-            "SiteName": "Caprock",
-            "ExpectedArrivalTime": "2026-03-09T11:04:00.0000000\u002B02:00",
+            "SiteId": "no-5",
+            "SiteName": "RR 1150 18th",
+            "ExpectedArrivalTime": "2026-03-09T10:19:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "no-19",
+            "SiteName": "TRI 1451 Dolley Madison (formerly FPSA)",
+            "ExpectedArrivalTime": "2026-03-09T10:53:00.0000000\u002B02:00",
+            "Sequence": 4
+          }
+        ],
+        "TotalDistanceKm": 91.453,
+        "TotalDurationMinutes": 345
+      },
+      {
+        "TechnicianId": "no",
+        "TechnicianName": "Miguel",
+        "Stops": [],
+        "TotalDistanceKm": 0,
+        "TotalDurationMinutes": 0
+      },
+      {
+        "TechnicianId": "no-2",
+        "TechnicianName": "Luis",
+        "Stops": [
+          {
+            "SiteId": "no-14",
+            "SiteName": "LPC -1325 G St. NW",
+            "ExpectedArrivalTime": "2026-03-09T09:18:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "no-13",
+            "SiteName": "COLL-1275 K St NW",
+            "ExpectedArrivalTime": "2026-03-09T09:33:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "no-6",
+            "SiteName": "Tiny Jewel Box",
+            "ExpectedArrivalTime": "2026-03-09T10:04:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "no-5",
+            "SiteName": "RR 1150 18th",
+            "ExpectedArrivalTime": "2026-03-09T10:34:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "no-10",
+            "SiteName": "JLL-1200 New Hampshire",
+            "ExpectedArrivalTime": "2026-03-09T10:49:00.0000000\u002B02:00",
+            "Sequence": 4
+          }
+        ],
+        "TotalDistanceKm": 87.099,
+        "TotalDurationMinutes": 307
+      },
+      {
+        "TechnicianId": "no-4",
+        "TechnicianName": "Darwin",
+        "Stops": [
+          {
+            "SiteId": "no-16",
+            "SiteName": "LPC - 1341 G St - Formerly LPC Colorado",
+            "ExpectedArrivalTime": "2026-03-09T08:18:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "no-14",
+            "SiteName": "LPC -1325 G St. NW",
+            "ExpectedArrivalTime": "2026-03-09T09:18:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "no-6",
+            "SiteName": "Tiny Jewel Box",
+            "ExpectedArrivalTime": "2026-03-09T09:49:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "no-10",
+            "SiteName": "JLL-1200 New Hampshire",
+            "ExpectedArrivalTime": "2026-03-09T10:34:00.0000000\u002B02:00",
             "Sequence": 3
           }
         ],
-        "TotalDistanceKm": 17.023,
-        "TotalDurationMinutes": 284
+        "TotalDistanceKm": 86.644,
+        "TotalDurationMinutes": 352
       },
       {
-        "TechnicianId": "kris-schenck",
-        "TechnicianName": "Kris Schenck",
+        "TechnicianId": "no-5",
+        "TechnicianName": "Henry",
         "Stops": [
           {
-            "SiteId": "e4-connect",
-            "SiteName": "E4 Connect",
+            "SiteId": "no",
+            "SiteName": "CW-1 M St, SE",
             "ExpectedArrivalTime": "2026-03-09T08:00:00.0000000\u002B02:00",
             "Sequence": 0
           },
           {
-            "SiteId": "spurwing-country-club",
-            "SiteName": "Spurwing Country Club",
-            "ExpectedArrivalTime": "2026-03-09T08:54:00.0000000\u002B02:00",
+            "SiteId": "no-13",
+            "SiteName": "COLL-1275 K St NW",
+            "ExpectedArrivalTime": "2026-03-09T09:18:00.0000000\u002B02:00",
             "Sequence": 1
           },
           {
-            "SiteId": "cwi-micron",
-            "SiteName": "CWI Micron",
-            "ExpectedArrivalTime": "2026-03-09T10:08:00.0000000\u002B02:00",
-            "Sequence": 2
-          }
-        ],
-        "TotalDistanceKm": 44.045,
-        "TotalDurationMinutes": 220
-      },
-      {
-        "TechnicianId": "maggie-christensen",
-        "TechnicianName": "Maggie Christensen",
-        "Stops": [
-          {
-            "SiteId": "westrock",
-            "SiteName": "Westrock",
-            "ExpectedArrivalTime": "2026-03-09T08:00:00.0000000\u002B02:00",
-            "Sequence": 0
-          },
-          {
-            "SiteId": "st-lukes-magic-valley-physicians-clinic",
-            "SiteName": "St. Luke\u0027s Magic Valley (Physicians Clinic)",
-            "ExpectedArrivalTime": "2026-03-09T08:55:00.0000000\u002B02:00",
-            "Sequence": 1
-          },
-          {
-            "SiteId": "hub-international-magic-valley",
-            "SiteName": "Hub International (Magic Valley)",
-            "ExpectedArrivalTime": "2026-03-09T09:38:00.0000000\u002B02:00",
+            "SiteId": "no-6",
+            "SiteName": "Tiny Jewel Box",
+            "ExpectedArrivalTime": "2026-03-09T09:49:00.0000000\u002B02:00",
             "Sequence": 2
           },
           {
-            "SiteId": "stevens-pierce-associates",
-            "SiteName": "Stevens Pierce \u0026 Associates",
-            "ExpectedArrivalTime": "2026-03-09T10:45:00.0000000\u002B02:00",
+            "SiteId": "no-5",
+            "SiteName": "RR 1150 18th",
+            "ExpectedArrivalTime": "2026-03-09T10:19:00.0000000\u002B02:00",
             "Sequence": 3
-          }
-        ],
-        "TotalDistanceKm": 15.742,
-        "TotalDurationMinutes": 246
-      },
-      {
-        "TechnicianId": "wendi-odell",
-        "TechnicianName": "Wendi O\u0027Dell",
-        "Stops": [
-          {
-            "SiteId": "st-lukes-meridian",
-            "SiteName": "St. Luke\u0027s Meridian",
-            "ExpectedArrivalTime": "2026-03-09T08:00:00.0000000\u002B02:00",
-            "Sequence": 0
           },
           {
-            "SiteId": "eagle-river-4",
-            "SiteName": "Eagle River 4",
-            "ExpectedArrivalTime": "2026-03-09T12:14:00.0000000\u002B02:00",
-            "Sequence": 1
-          },
-          {
-            "SiteId": "1661-shoreline-tok",
-            "SiteName": "1661 Shoreline (TOK)",
-            "ExpectedArrivalTime": "2026-03-09T14:47:00.0000000\u002B02:00",
-            "Sequence": 2
+            "SiteId": "no-10",
+            "SiteName": "JLL-1200 New Hampshire",
+            "ExpectedArrivalTime": "2026-03-09T10:34:00.0000000\u002B02:00",
+            "Sequence": 4
           }
         ],
-        "TotalDistanceKm": 33.764,
-        "TotalDurationMinutes": 458
+        "TotalDistanceKm": 91.366,
+        "TotalDurationMinutes": 374
       }
     ]
   }

@@ -51,7 +51,7 @@ public class Function
             int horizon = masterSchedule.Count;
             DateTime cycleStartDate = GetNextMonday(DateTime.Today);
 
-            OutputJsonWriter.TryWriteMasterCalendarJson(masterSchedule, cycleStartDate, horizon, context.Logger);
+            OutputJsonWriter.TryWriteMasterCalendarJson(masterSchedule, cycleStartDate, horizon, request.Sites, context.Logger);
 
             int routePlanningDays = RoutingPlanningConfigLoader.LoadRoutePlanningDays(context.Logger);
             context.Logger.LogLine($"[CONFIG] RoutePlanningDays={routePlanningDays}");
