@@ -1,65 +1,45 @@
-using System.Text.Json;
 using Amazon.Lambda.Core;
+using System.Text.Json;
 
-namespace ObgLambda.Config;
-
-public sealed class RoutingPlanningConfig
-{
-    public int RoutePlanningDays { get; set; } = 7;
-}
+namespace ObgLambda;
 
 public static class RoutingPlanningConfigLoader
 {
-    private const string DefaultConfigRelativePath = "config/routing-planning-config.json";
+    private const int DefaultRoutePlanningDays = 7;
 
-    public static RoutingPlanningConfig Load(ILambdaLogger? logger = null)
+    public static int LoadRoutePlanningDays(ILambdaLogger logger)
     {
         try
         {
-            var root = ResolveProjectRoot();
-            var path = Path.Combine(root, DefaultConfigRelativePath);
+            var root = Function.ResolveProjectRoot();
+            var path = Path.Combine(root, "config", "routing-planning-config.json");
 
             if (!File.Exists(path))
             {
-                logger?.LogLine($"[CONFIG] routing config not found, using defaults: {path}");
-                return new RoutingPlanningConfig();
+                logger.LogLine($"[CONFIG] routing-planning-config.json not found, fallback={DefaultRoutePlanningDays}");
+                return DefaultRoutePlanningDays;
             }
 
             var json = File.ReadAllText(path);
-            var config = JsonSerializer.Deserialize<RoutingPlanningConfig>(json, new JsonSerializerOptions
+            var config = JsonSerializer.Deserialize<RoutingPlanningConfig>(json);
+
+            if (config is null || config.RoutePlanningDays <= 0)
             {
-                PropertyNameCaseInsensitive = true
-            }) ?? new RoutingPlanningConfig();
+                logger.LogLine($"[CONFIG] invalid RoutePlanningDays, fallback={DefaultRoutePlanningDays}");
+                return DefaultRoutePlanningDays;
+            }
 
-            if (config.RoutePlanningDays <= 0)
-                config.RoutePlanningDays = 1;
-
-            logger?.LogLine($"[CONFIG] RoutePlanningDays={config.RoutePlanningDays}");
-            return config;
+            return config.RoutePlanningDays;
         }
         catch (Exception ex)
         {
-            logger?.LogLine($"[CONFIG] failed to load routing config, using defaults. {ex.Message}");
-            return new RoutingPlanningConfig();
+            logger.LogLine($"[CONFIG] failed to load routing config, fallback={DefaultRoutePlanningDays}. {ex.Message}");
+            return DefaultRoutePlanningDays;
         }
     }
 
-    private static string ResolveProjectRoot()
+    private sealed class RoutingPlanningConfig
     {
-        var cur = new DirectoryInfo(Directory.GetCurrentDirectory());
-
-        while (cur != null)
-        {
-            var input = Path.Combine(cur.FullName, "input");
-            var lambda = Path.Combine(cur.FullName, "ObgLambda");
-            var services = Path.Combine(cur.FullName, "ObgServices");
-
-            if (Directory.Exists(lambda) && Directory.Exists(services))
-                return cur.FullName;
-
-            cur = cur.Parent;
-        }
-
-        return Directory.GetCurrentDirectory();
+        public int RoutePlanningDays { get; set; }
     }
 }

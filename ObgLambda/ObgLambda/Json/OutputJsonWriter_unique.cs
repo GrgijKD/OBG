@@ -133,11 +133,11 @@ namespace ObgLambda.Json
                 };
 
                 File.WriteAllText(outPath, JsonSerializer.Serialize(model, jsonOptions));
-                logger?.LogInformation($"[OutputJsonWriter] JSON записано: {outPath}");
+                logger?.LogLine($"[EXPORT] JSON записано: {outPath}");
             }
             catch (Exception ex)
             {
-                logger?.LogError($"[OutputJsonWriter] Failed to write output json: {ex}");
+                logger?.LogLine($"[EXPORT][ERROR] Failed to write output json: {ex.Message}");
             }
         }
 
@@ -163,11 +163,11 @@ namespace ObgLambda.Json
                 };
 
                 File.WriteAllText(outPath, JsonSerializer.Serialize(model, jsonOptions));
-                logger?.LogInformation($"[OutputJsonWriter] Timetable JSON записано: {outPath}");
+                logger?.LogLine($"[EXPORT] Timetable JSON записано: {outPath}");
             }
             catch (Exception ex)
             {
-                logger?.LogError($"[OutputJsonWriter] Failed to write timetable json: {ex}");
+                logger?.LogLine($"[EXPORT][ERROR] Failed to write timetable json: {ex.Message}");
             }
         }
 
@@ -195,11 +195,11 @@ namespace ObgLambda.Json
                 };
 
                 File.WriteAllText(outPath, JsonSerializer.Serialize(model, jsonOptions));
-                logger?.LogInformation($"[OutputJsonWriter] Master calendar JSON записано: {outPath}");
+                logger?.LogLine($"[EXPORT] Master calendar JSON записано: {outPath}");
             }
             catch (Exception ex)
             {
-                logger?.LogError($"[OutputJsonWriter] Failed to write master calendar json: {ex}");
+                logger?.LogLine($"[EXPORT][ERROR] Failed to write master calendar json: {ex.Message}");
             }
         }
 

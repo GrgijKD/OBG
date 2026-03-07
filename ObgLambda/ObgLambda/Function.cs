@@ -1,6 +1,5 @@
 using Amazon.Lambda.Core;
 using Amazon.LocationService;
-using ObgLambda.Config;
 using ObgLambda.Excel;
 using ObgLambda.Json;
 using ObgServices.Models;
@@ -45,8 +44,6 @@ public class Function
                 }
             }
 
-            var routingConfig = RoutingPlanningConfigLoader.Load(context.Logger);
-
             context.Logger.LogLine("Генерація Майстер-розкладу...");
             var geocodingService = new GeocodingService(_locationClient);
 
@@ -56,7 +53,8 @@ public class Function
 
             OutputJsonWriter.TryWriteMasterCalendarJson(masterSchedule, cycleStartDate, horizon, context.Logger);
 
-            var finalResult = new List<WeeklyRoute>();
+            int routePlanningDays = RoutingPlanningConfigLoader.LoadRoutePlanningDays(context.Logger);
+            context.Logger.LogLine($"[CONFIG] RoutePlanningDays={routePlanningDays}");
 
             var allDates = request.TargetDates != null && request.TargetDates.Count != 0
                 ? request.TargetDates.OrderBy(d => d).ToList()
@@ -64,11 +62,10 @@ public class Function
                     .Select(offset => cycleStartDate.AddDays(offset))
                     .ToList();
 
-            var datesToProcess = allDates
-                .Take(routingConfig.RoutePlanningDays)
-                .ToList();
-
+            var datesToProcess = allDates.Take(routePlanningDays).ToList();
             context.Logger.LogLine($"[PLAN] masterDays={allDates.Count}, routingDays={datesToProcess.Count}");
+
+            var finalResult = new List<WeeklyRoute>();
 
             foreach (var t in request.Technicians)
                 t.CurrentScheduledHours = 0;
@@ -146,7 +143,9 @@ public class Function
 
                             var tech = request.Technicians.FirstOrDefault(t => t.Name == route.TechnicianName);
                             if (tech != null)
+                            {
                                 tech.CurrentScheduledHours += addedHours;
+                            }
                         }
 
                         context.Logger.LogLine($"[DAY] {targetDate:dd.MM.yyyy}: activeTechs={activeTechs}, stops={totalStops}, totalHours={totalHours:F1}");
@@ -232,7 +231,7 @@ public class Function
         }
     }
 
-    private static string ResolveProjectRoot()
+    public static string ResolveProjectRoot()
     {
         var cur = new DirectoryInfo(Directory.GetCurrentDirectory());
 

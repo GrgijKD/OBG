@@ -10,7 +10,8 @@ namespace ObgServices.Services
         private const double WeeklyUtilizationWeight = 1000.0;
         private const double GeoBonusPerMatch = 30.0;
         private const double GeoOutlierPenalty = 40.0;
-        private const bool EnableDiagnostics = true;
+        private const bool EnableDiagnostics = false;
+        private const bool EnableSiteWarnings = false;
 
         public static Dictionary<int, List<ServiceSite>> GenerateMasterSchedule(List<ServiceSite> sites, List<Technician> techs)
         {
@@ -54,7 +55,10 @@ namespace ObgServices.Services
                 if (ctx.FeasibleDayCount == 0)
                 {
                     noFeasibleCount++;
-                    Console.WriteLine($"[MASTER][WARN] Site '{ctx.Site.Id}' has no feasible days in the planning horizon. FeasibleDayCount={ctx.FeasibleDayCount}, minEligibleTechs={(ctx.MinEligibleTechCount == int.MaxValue ? "n/a" : ctx.MinEligibleTechCount)}.");
+                    if (EnableSiteWarnings)
+                    {
+                        Console.WriteLine($"[MASTER][WARN] Site '{ctx.Site.Id}' has no feasible days in the planning horizon. FeasibleDayCount={ctx.FeasibleDayCount}, minEligibleTechs={(ctx.MinEligibleTechCount == int.MaxValue ? "n/a" : ctx.MinEligibleTechCount)}.");
+                    }
 
                     if (EnableDiagnostics)
                     {
@@ -165,7 +169,7 @@ namespace ObgServices.Services
 
             if (bestStartDay == -1)
             {
-                Console.WriteLine($"[MASTER][WARN] Site '{ctx.Site.Id}' could not be placed without breaking day/weekly capacity.");
+                if (EnableSiteWarnings) Console.WriteLine($"[MASTER][WARN] Site '{ctx.Site.Id}' could not be placed without breaking day/weekly capacity.");
                 return;
             }
 
@@ -188,7 +192,7 @@ namespace ObgServices.Services
 
             if (selectedDays.Count == 0)
             {
-                Console.WriteLine($"[MASTER][WARN] Weekly site '{ctx.Site.Id}' has no valid weekly pattern.");
+                if (EnableSiteWarnings) Console.WriteLine($"[MASTER][WARN] Weekly site '{ctx.Site.Id}' has no valid weekly pattern.");
                 return;
             }
 

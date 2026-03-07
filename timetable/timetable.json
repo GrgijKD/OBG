@@ -120,5 +120,1745 @@
         "TotalDurationMinutes": 458
       }
     ]
+  },
+  {
+    "Day": 2,
+    "Date": "2026-03-10",
+    "Routes": []
+  },
+  {
+    "Day": 3,
+    "Date": "2026-03-11",
+    "Routes": [
+      {
+        "TechnicianId": "allison-kennedy",
+        "TechnicianName": "Allison Kennedy",
+        "Stops": [
+          {
+            "SiteId": "bank-of-america-suite-620",
+            "SiteName": "Bank Of America Suite 620",
+            "ExpectedArrivalTime": "2026-03-11T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "st-alphonsus-boise-includes-day-surgery",
+            "SiteName": "St. Alphonsus Boise (includes Day Surgery)",
+            "ExpectedArrivalTime": "2026-03-11T08:56:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "jones-williams-fuhrman-gourley",
+            "SiteName": "Jones, Williams, Fuhrman \u0026 Gourley",
+            "ExpectedArrivalTime": "2026-03-11T14:52:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "small-mine-development",
+            "SiteName": "Small Mine Development",
+            "ExpectedArrivalTime": "2026-03-11T16:12:00.0000000\u002B02:00",
+            "Sequence": 3
+          }
+        ],
+        "TotalDistanceKm": 18.298,
+        "TotalDurationMinutes": 590
+      },
+      {
+        "TechnicianId": "kris-schenck",
+        "TechnicianName": "Kris Schenck",
+        "Stops": [
+          {
+            "SiteId": "select-health-suite-100",
+            "SiteName": "Select Health Suite 100",
+            "ExpectedArrivalTime": "2026-03-11T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "cosentino-suite-700",
+            "SiteName": "Cosentino Suite 700",
+            "ExpectedArrivalTime": "2026-03-11T08:29:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "united-rentals-inc",
+            "SiteName": "United Rentals Inc.",
+            "ExpectedArrivalTime": "2026-03-11T08:57:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "eagle-river-2-tok",
+            "SiteName": "Eagle River 2 (TOK)",
+            "ExpectedArrivalTime": "2026-03-11T09:27:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "ocean-network-express-suite-200",
+            "SiteName": "Ocean Network Express Suite 200",
+            "ExpectedArrivalTime": "2026-03-11T10:25:00.0000000\u002B02:00",
+            "Sequence": 4
+          }
+        ],
+        "TotalDistanceKm": 46.244,
+        "TotalDurationMinutes": 296
+      },
+      {
+        "TechnicianId": "maggie-christensen",
+        "TechnicianName": "Maggie Christensen",
+        "Stops": [],
+        "TotalDistanceKm": 0,
+        "TotalDurationMinutes": 0
+      },
+      {
+        "TechnicianId": "wendi-odell",
+        "TechnicianName": "Wendi O\u0027Dell",
+        "Stops": [
+          {
+            "SiteId": "teleo",
+            "SiteName": "Teleo",
+            "ExpectedArrivalTime": "2026-03-11T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "river-front",
+            "SiteName": "River Front",
+            "ExpectedArrivalTime": "2026-03-11T10:32:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "st-lukes-neurology-professional-building",
+            "SiteName": "St. Luke\u0027s Neurology (Professional Building)",
+            "ExpectedArrivalTime": "2026-03-11T10:51:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "thornton-byron-llp",
+            "SiteName": "Thornton Byron, LLP",
+            "ExpectedArrivalTime": "2026-03-11T11:11:00.0000000\u002B02:00",
+            "Sequence": 3
+          }
+        ],
+        "TotalDistanceKm": 11.253,
+        "TotalDurationMinutes": 265
+      }
+    ]
+  },
+  {
+    "Day": 4,
+    "Date": "2026-03-12",
+    "Routes": []
+  },
+  {
+    "Day": 5,
+    "Date": "2026-03-13",
+    "Routes": [
+      {
+        "TechnicianId": "allison-kennedy",
+        "TechnicianName": "Allison Kennedy",
+        "Stops": [
+          {
+            "SiteId": "rvk",
+            "SiteName": "RVK",
+            "ExpectedArrivalTime": "2026-03-13T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "dickinson-frozen-foods",
+            "SiteName": "Dickinson Frozen Foods",
+            "ExpectedArrivalTime": "2026-03-13T08:29:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "eagles-gate-ii",
+            "SiteName": "Eagles Gate II",
+            "ExpectedArrivalTime": "2026-03-13T08:58:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "st-alphonsus-joint-preservation",
+            "SiteName": "St. Alphonsus Joint Preservation",
+            "ExpectedArrivalTime": "2026-03-13T12:12:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "hb-sprague-formerly-henriksen-butler-2",
+            "SiteName": "HB Sprague (formerly Henriksen Butler",
+            "ExpectedArrivalTime": "2026-03-13T13:48:00.0000000\u002B02:00",
+            "Sequence": 4
+          },
+          {
+            "SiteId": "design-center-gem-center-for-the-arts",
+            "SiteName": "Design Center/Gem Center for the Arts",
+            "ExpectedArrivalTime": "2026-03-13T14:02:00.0000000\u002B02:00",
+            "Sequence": 5
+          }
+        ],
+        "TotalDistanceKm": 37.882,
+        "TotalDurationMinutes": 473
+      },
+      {
+        "TechnicianId": "kris-schenck",
+        "TechnicianName": "Kris Schenck",
+        "Stops": [
+          {
+            "SiteId": "intermountain-medical-imaging-meridian-imi-meridian",
+            "SiteName": "Intermountain Medical Imaging, Meridian (IMI Meridian)",
+            "ExpectedArrivalTime": "2026-03-13T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "blue-cross",
+            "SiteName": "Blue Cross",
+            "ExpectedArrivalTime": "2026-03-13T08:42:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "pig-latin",
+            "SiteName": "Pig Latin",
+            "ExpectedArrivalTime": "2026-03-13T09:24:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "dovetail-roundhouse",
+            "SiteName": "Dovetail (Roundhouse)",
+            "ExpectedArrivalTime": "2026-03-13T10:00:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "st-lukes-south-nampa-clinic-cae",
+            "SiteName": "St. Luke\u0027s South Nampa Clinic (CAE)",
+            "ExpectedArrivalTime": "2026-03-13T11:30:00.0000000\u002B02:00",
+            "Sequence": 4
+          }
+        ],
+        "TotalDistanceKm": 68.914,
+        "TotalDurationMinutes": 315
+      },
+      {
+        "TechnicianId": "maggie-christensen",
+        "TechnicianName": "Maggie Christensen",
+        "Stops": [],
+        "TotalDistanceKm": 0,
+        "TotalDurationMinutes": 0
+      },
+      {
+        "TechnicianId": "wendi-odell",
+        "TechnicianName": "Wendi O\u0027Dell",
+        "Stops": [
+          {
+            "SiteId": "the-lucy-roundhouse",
+            "SiteName": "The Lucy (Roundhouse)",
+            "ExpectedArrivalTime": "2026-03-13T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "kirton-mcconkie-suite-930",
+            "SiteName": "Kirton McConkie Suite 930",
+            "ExpectedArrivalTime": "2026-03-13T08:20:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "futura-title-escrow-formerly-alliance-title",
+            "SiteName": "Futura Title \u0026 Escrow (formerly Alliance Title)",
+            "ExpectedArrivalTime": "2026-03-13T08:51:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "hb-sprague-formerly-henriksen-butler",
+            "SiteName": "HB Sprague (formerly Henriksen Butler",
+            "ExpectedArrivalTime": "2026-03-13T09:37:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "kno2",
+            "SiteName": "KNO2",
+            "ExpectedArrivalTime": "2026-03-13T10:37:00.0000000\u002B02:00",
+            "Sequence": 4
+          }
+        ],
+        "TotalDistanceKm": 6.612,
+        "TotalDurationMinutes": 237
+      }
+    ]
+  },
+  {
+    "Day": 6,
+    "Date": "2026-03-14",
+    "Routes": []
+  },
+  {
+    "Day": 7,
+    "Date": "2026-03-15",
+    "Routes": []
+  },
+  {
+    "Day": 8,
+    "Date": "2026-03-16",
+    "Routes": [
+      {
+        "TechnicianId": "allison-kennedy",
+        "TechnicianName": "Allison Kennedy",
+        "Stops": [
+          {
+            "SiteId": "rocky-mountain-companies",
+            "SiteName": "Rocky Mountain Companies",
+            "ExpectedArrivalTime": "2026-03-09T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "eagle-river-6-rw-investments-tok",
+            "SiteName": "Eagle River 6 RW Investments (TOK)",
+            "ExpectedArrivalTime": "2026-03-09T09:21:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "profit-score",
+            "SiteName": "Profit Score",
+            "ExpectedArrivalTime": "2026-03-09T09:36:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "st-alphonsus-boise-hartman-building-n6-entrance",
+            "SiteName": "St. Alphonsus Boise (Hartman Building N6 Entrance)",
+            "ExpectedArrivalTime": "2026-03-09T10:22:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "ada-county-operations",
+            "SiteName": "Ada County Operations",
+            "ExpectedArrivalTime": "2026-03-09T10:59:00.0000000\u002B02:00",
+            "Sequence": 4
+          },
+          {
+            "SiteId": "asml",
+            "SiteName": "ASML",
+            "ExpectedArrivalTime": "2026-03-09T11:40:00.0000000\u002B02:00",
+            "Sequence": 5
+          }
+        ],
+        "TotalDistanceKm": 40.014,
+        "TotalDurationMinutes": 407
+      },
+      {
+        "TechnicianId": "kris-schenck",
+        "TechnicianName": "Kris Schenck",
+        "Stops": [
+          {
+            "SiteId": "rw-investment-management",
+            "SiteName": "RW Investment Management",
+            "ExpectedArrivalTime": "2026-03-09T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "deanne-shea-2",
+            "SiteName": "DeAnne Shea",
+            "ExpectedArrivalTime": "2026-03-09T09:24:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "deanne-shea",
+            "SiteName": "DeAnne Shea",
+            "ExpectedArrivalTime": "2026-03-09T09:34:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "renu-medispa",
+            "SiteName": "ReNu Medispa",
+            "ExpectedArrivalTime": "2026-03-09T10:13:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "arcadia-investments",
+            "SiteName": "Arcadia Investments",
+            "ExpectedArrivalTime": "2026-03-09T10:33:00.0000000\u002B02:00",
+            "Sequence": 4
+          }
+        ],
+        "TotalDistanceKm": 54.31,
+        "TotalDurationMinutes": 258
+      },
+      {
+        "TechnicianId": "maggie-christensen",
+        "TechnicianName": "Maggie Christensen",
+        "Stops": [
+          {
+            "SiteId": "st-lukes-magic-valley-pallative-care-mob-2",
+            "SiteName": "St. Luke\u0027s Magic Valley (Pallative Care MOB #2)",
+            "ExpectedArrivalTime": "2026-03-09T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "st-lukes-magic-valley-mob2-and-occupational-health",
+            "SiteName": "St. Luke\u0027s Magic Valley (MOB#2 and Occupational Health)",
+            "ExpectedArrivalTime": "2026-03-09T08:10:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "magic-valley-regional-airport",
+            "SiteName": "Magic Valley Regional Airport",
+            "ExpectedArrivalTime": "2026-03-09T09:28:00.0000000\u002B02:00",
+            "Sequence": 2
+          }
+        ],
+        "TotalDistanceKm": 26.07,
+        "TotalDurationMinutes": 183
+      },
+      {
+        "TechnicianId": "wendi-odell",
+        "TechnicianName": "Wendi O\u0027Dell",
+        "Stops": [
+          {
+            "SiteId": "jennifer-miller",
+            "SiteName": "Jennifer Miller",
+            "ExpectedArrivalTime": "2026-03-09T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "st-lukes-internal-medicine-park-blvd",
+            "SiteName": "St. Luke\u0027s Internal Medicine (Park Blvd)",
+            "ExpectedArrivalTime": "2026-03-09T09:35:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "st-lukes-telehealth",
+            "SiteName": "St. Luke\u0027s Telehealth",
+            "ExpectedArrivalTime": "2026-03-09T09:55:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "st-lukes-rehabilitation-hospital-elks",
+            "SiteName": "St. Luke\u0027s Rehabilitation Hospital (Elk\u0027s)",
+            "ExpectedArrivalTime": "2026-03-09T11:41:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "clifton-larson-allen-llp",
+            "SiteName": "Clifton Larson Allen LLP",
+            "ExpectedArrivalTime": "2026-03-09T13:12:00.0000000\u002B02:00",
+            "Sequence": 4
+          }
+        ],
+        "TotalDistanceKm": 12.244,
+        "TotalDurationMinutes": 395
+      }
+    ]
+  },
+  {
+    "Day": 9,
+    "Date": "2026-03-17",
+    "Routes": [
+      {
+        "TechnicianId": "allison-kennedy",
+        "TechnicianName": "Allison Kennedy",
+        "Stops": [
+          {
+            "SiteId": "new-life-office",
+            "SiteName": "New Life Office",
+            "ExpectedArrivalTime": "2026-03-10T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "epionce",
+            "SiteName": "Epionce",
+            "ExpectedArrivalTime": "2026-03-10T08:51:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "lyle-pearson",
+            "SiteName": "Lyle Pearson",
+            "ExpectedArrivalTime": "2026-03-10T11:25:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "freeform-formerly-business-interiors-of-idaho",
+            "SiteName": "FreeForm (formerly Business Interiors of Idaho)",
+            "ExpectedArrivalTime": "2026-03-10T12:49:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "consor-north-america-inc",
+            "SiteName": "Consor North America, Inc.",
+            "ExpectedArrivalTime": "2026-03-10T13:53:00.0000000\u002B02:00",
+            "Sequence": 4
+          }
+        ],
+        "TotalDistanceKm": 24.45,
+        "TotalDurationMinutes": 440
+      },
+      {
+        "TechnicianId": "kris-schenck",
+        "TechnicianName": "Kris Schenck",
+        "Stops": [
+          {
+            "SiteId": "idaho-otology",
+            "SiteName": "Idaho Otology",
+            "ExpectedArrivalTime": "2026-03-10T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "sandros-residence",
+            "SiteName": "Sandros Residence",
+            "ExpectedArrivalTime": "2026-03-10T08:20:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "spa-building",
+            "SiteName": "Spa Building",
+            "ExpectedArrivalTime": "2026-03-10T09:22:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "st-lukes-internal-medicine-cloverdale",
+            "SiteName": "St. Luke\u0027s Internal Medicine (Cloverdale)",
+            "ExpectedArrivalTime": "2026-03-10T09:48:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "fidelity-investments-suite-140-ambius",
+            "SiteName": "Fidelity Investments, Suite 140 (Ambius)",
+            "ExpectedArrivalTime": "2026-03-10T10:25:00.0000000\u002B02:00",
+            "Sequence": 4
+          }
+        ],
+        "TotalDistanceKm": 44.097,
+        "TotalDurationMinutes": 238
+      },
+      {
+        "TechnicianId": "maggie-christensen",
+        "TechnicianName": "Maggie Christensen",
+        "Stops": [
+          {
+            "SiteId": "river-view-eye-specialist-taylor-halverson",
+            "SiteName": "River View Eye Specialist (Taylor \u0026 Halverson)",
+            "ExpectedArrivalTime": "2026-03-10T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "st-lukes-magic-valley-surgery-center",
+            "SiteName": "St. Luke\u0027s Magic Valley (Surgery Center)",
+            "ExpectedArrivalTime": "2026-03-10T08:31:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "st-lukes-magic-valley-derm",
+            "SiteName": "St. Luke\u0027s Magic Valley (Derm)",
+            "ExpectedArrivalTime": "2026-03-10T08:59:00.0000000\u002B02:00",
+            "Sequence": 2
+          }
+        ],
+        "TotalDistanceKm": 12.271,
+        "TotalDurationMinutes": 131
+      },
+      {
+        "TechnicianId": "wendi-odell",
+        "TechnicianName": "Wendi O\u0027Dell",
+        "Stops": [
+          {
+            "SiteId": "lyle-pearson-2",
+            "SiteName": "Lyle Pearson",
+            "ExpectedArrivalTime": "2026-03-10T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "armanino",
+            "SiteName": "Armanino",
+            "ExpectedArrivalTime": "2026-03-10T11:09:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "bailey-glasser",
+            "SiteName": "Bailey Glasser",
+            "ExpectedArrivalTime": "2026-03-10T11:49:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "st-lukes-admin-boise-formerly-falcon-bldg",
+            "SiteName": "St. Luke\u0027s Admin Boise (formerly Falcon Bldg)",
+            "ExpectedArrivalTime": "2026-03-10T13:06:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "duft-watterson",
+            "SiteName": "Duft Watterson",
+            "ExpectedArrivalTime": "2026-03-10T13:53:00.0000000\u002B02:00",
+            "Sequence": 4
+          }
+        ],
+        "TotalDistanceKm": 15.849,
+        "TotalDurationMinutes": 407
+      }
+    ]
+  },
+  {
+    "Day": 10,
+    "Date": "2026-03-18",
+    "Routes": [
+      {
+        "TechnicianId": "allison-kennedy",
+        "TechnicianName": "Allison Kennedy",
+        "Stops": [
+          {
+            "SiteId": "tom-nelson",
+            "SiteName": "Tom Nelson",
+            "ExpectedArrivalTime": "2026-03-11T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "lombard-conrad-architects",
+            "SiteName": "Lombard Conrad Architects",
+            "ExpectedArrivalTime": "2026-03-11T09:18:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "jill-aldape",
+            "SiteName": "Jill Aldape",
+            "ExpectedArrivalTime": "2026-03-11T11:23:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "st-lukes-neurology-2nd-street",
+            "SiteName": "St. Luke\u0027s Neurology (2nd Street)",
+            "ExpectedArrivalTime": "2026-03-11T12:14:00.0000000\u002B02:00",
+            "Sequence": 3
+          }
+        ],
+        "TotalDistanceKm": 22.797,
+        "TotalDurationMinutes": 306
+      },
+      {
+        "TechnicianId": "kris-schenck",
+        "TechnicianName": "Kris Schenck",
+        "Stops": [
+          {
+            "SiteId": "ahlquist-suite-550-2",
+            "SiteName": "Ahlquist Suite 550",
+            "ExpectedArrivalTime": "2026-03-11T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "riverside-llp-ag-concepts",
+            "SiteName": "Riverside LLP (Ag Concepts)",
+            "ExpectedArrivalTime": "2026-03-11T10:15:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "st-lukes-portico-east",
+            "SiteName": "St. Luke\u0027s (Portico East)",
+            "ExpectedArrivalTime": "2026-03-11T11:09:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "ahlquist-suite-550",
+            "SiteName": "Ahlquist Suite 550",
+            "ExpectedArrivalTime": "2026-03-11T11:35:00.0000000\u002B02:00",
+            "Sequence": 3
+          }
+        ],
+        "TotalDistanceKm": 41.437,
+        "TotalDurationMinutes": 285
+      },
+      {
+        "TechnicianId": "maggie-christensen",
+        "TechnicianName": "Maggie Christensen",
+        "Stops": [
+          {
+            "SiteId": "st-lukes-magic-valley-main-campus",
+            "SiteName": "St. Luke\u0027s Magic Valley (Main Campus)",
+            "ExpectedArrivalTime": "2026-03-11T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          }
+        ],
+        "TotalDistanceKm": 10.94,
+        "TotalDurationMinutes": 376
+      },
+      {
+        "TechnicianId": "wendi-odell",
+        "TechnicianName": "Wendi O\u0027Dell",
+        "Stops": [
+          {
+            "SiteId": "cwi-apin-pintail-center",
+            "SiteName": "CWI APIN (Pintail Center)",
+            "ExpectedArrivalTime": "2026-03-11T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "1673-shoreline-tok",
+            "SiteName": "1673 Shoreline (TOK)",
+            "ExpectedArrivalTime": "2026-03-11T08:35:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "michelle-mings",
+            "SiteName": "Michelle Mings",
+            "ExpectedArrivalTime": "2026-03-11T08:49:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "hepworth-holzer-llp",
+            "SiteName": "Hepworth Holzer LLP",
+            "ExpectedArrivalTime": "2026-03-11T09:52:00.0000000\u002B02:00",
+            "Sequence": 3
+          }
+        ],
+        "TotalDistanceKm": 20.437,
+        "TotalDurationMinutes": 184
+      }
+    ]
+  },
+  {
+    "Day": 11,
+    "Date": "2026-03-19",
+    "Routes": [
+      {
+        "TechnicianId": "allison-kennedy",
+        "TechnicianName": "Allison Kennedy",
+        "Stops": [
+          {
+            "SiteId": "st-lukes-hospital-boise",
+            "SiteName": "St. Luke\u0027s Hospital Boise",
+            "ExpectedArrivalTime": "2026-03-12T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "fidelity-building-downtown",
+            "SiteName": "Fidelity Building Downtown",
+            "ExpectedArrivalTime": "2026-03-12T12:16:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "st-alphonsus-eagle",
+            "SiteName": "St. Alphonsus Eagle",
+            "ExpectedArrivalTime": "2026-03-12T12:52:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "st-alphonsus-boise-samb",
+            "SiteName": "St. Alphonsus Boise (SAMB)",
+            "ExpectedArrivalTime": "2026-03-12T15:09:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "idaho-sports-medicine-institute-ismi",
+            "SiteName": "Idaho Sports Medicine Institute (ISMI)",
+            "ExpectedArrivalTime": "2026-03-12T15:31:00.0000000\u002B02:00",
+            "Sequence": 4
+          }
+        ],
+        "TotalDistanceKm": 37.169,
+        "TotalDurationMinutes": 534
+      },
+      {
+        "TechnicianId": "kris-schenck",
+        "TechnicianName": "Kris Schenck",
+        "Stops": [
+          {
+            "SiteId": "comstock-bush-suite-500",
+            "SiteName": "Comstock \u0026 Bush Suite 500",
+            "ExpectedArrivalTime": "2026-03-12T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "cheesecake-factory-ambius",
+            "SiteName": "Cheesecake Factory (Ambius)",
+            "ExpectedArrivalTime": "2026-03-12T09:09:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "copperstone-dental",
+            "SiteName": "Copperstone Dental",
+            "ExpectedArrivalTime": "2026-03-12T09:44:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "dmb-1157",
+            "SiteName": "DMB (1157)",
+            "ExpectedArrivalTime": "2026-03-12T10:07:00.0000000\u002B02:00",
+            "Sequence": 3
+          }
+        ],
+        "TotalDistanceKm": 47.451,
+        "TotalDurationMinutes": 293
+      },
+      {
+        "TechnicianId": "maggie-christensen",
+        "TechnicianName": "Maggie Christensen",
+        "Stops": [],
+        "TotalDistanceKm": 0,
+        "TotalDurationMinutes": 0
+      },
+      {
+        "TechnicianId": "wendi-odell",
+        "TechnicianName": "Wendi O\u0027Dell",
+        "Stops": [
+          {
+            "SiteId": "futura-corp",
+            "SiteName": "Futura Corp.",
+            "ExpectedArrivalTime": "2026-03-12T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "br-wealth-management",
+            "SiteName": "BR Wealth Management",
+            "ExpectedArrivalTime": "2026-03-12T09:00:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "center-for-lifetime-health",
+            "SiteName": "Center For Lifetime Health",
+            "ExpectedArrivalTime": "2026-03-12T09:33:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "jayme-mullaney",
+            "SiteName": "Jayme Mullaney",
+            "ExpectedArrivalTime": "2026-03-12T10:24:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "johnson-may-suite-205",
+            "SiteName": "Johnson May Suite 205",
+            "ExpectedArrivalTime": "2026-03-12T12:29:00.0000000\u002B02:00",
+            "Sequence": 4
+          }
+        ],
+        "TotalDistanceKm": 16.208,
+        "TotalDurationMinutes": 383
+      }
+    ]
+  },
+  {
+    "Day": 12,
+    "Date": "2026-03-20",
+    "Routes": []
+  },
+  {
+    "Day": 13,
+    "Date": "2026-03-21",
+    "Routes": []
+  },
+  {
+    "Day": 14,
+    "Date": "2026-03-22",
+    "Routes": []
+  },
+  {
+    "Day": 15,
+    "Date": "2026-03-23",
+    "Routes": [
+      {
+        "TechnicianId": "allison-kennedy",
+        "TechnicianName": "Allison Kennedy",
+        "Stops": [
+          {
+            "SiteId": "charles-schwab-ambius",
+            "SiteName": "Charles Schwab (Ambius)",
+            "ExpectedArrivalTime": "2026-03-09T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "buffington-mohr-mcneal-formerly-tbfm",
+            "SiteName": "Buffington Mohr McNeal (formerly TBFM)",
+            "ExpectedArrivalTime": "2026-03-09T09:45:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "pat-and-john-poreba",
+            "SiteName": "Pat and John Poreba",
+            "ExpectedArrivalTime": "2026-03-09T10:27:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "caprock",
+            "SiteName": "Caprock",
+            "ExpectedArrivalTime": "2026-03-09T11:04:00.0000000\u002B02:00",
+            "Sequence": 3
+          }
+        ],
+        "TotalDistanceKm": 17.023,
+        "TotalDurationMinutes": 284
+      },
+      {
+        "TechnicianId": "kris-schenck",
+        "TechnicianName": "Kris Schenck",
+        "Stops": [
+          {
+            "SiteId": "e4-connect",
+            "SiteName": "E4 Connect",
+            "ExpectedArrivalTime": "2026-03-09T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "spurwing-country-club",
+            "SiteName": "Spurwing Country Club",
+            "ExpectedArrivalTime": "2026-03-09T08:54:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "cwi-micron",
+            "SiteName": "CWI Micron",
+            "ExpectedArrivalTime": "2026-03-09T10:08:00.0000000\u002B02:00",
+            "Sequence": 2
+          }
+        ],
+        "TotalDistanceKm": 44.045,
+        "TotalDurationMinutes": 220
+      },
+      {
+        "TechnicianId": "maggie-christensen",
+        "TechnicianName": "Maggie Christensen",
+        "Stops": [
+          {
+            "SiteId": "westrock",
+            "SiteName": "Westrock",
+            "ExpectedArrivalTime": "2026-03-09T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "st-lukes-magic-valley-physicians-clinic",
+            "SiteName": "St. Luke\u0027s Magic Valley (Physicians Clinic)",
+            "ExpectedArrivalTime": "2026-03-09T08:55:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "hub-international-magic-valley",
+            "SiteName": "Hub International (Magic Valley)",
+            "ExpectedArrivalTime": "2026-03-09T09:38:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "stevens-pierce-associates",
+            "SiteName": "Stevens Pierce \u0026 Associates",
+            "ExpectedArrivalTime": "2026-03-09T10:45:00.0000000\u002B02:00",
+            "Sequence": 3
+          }
+        ],
+        "TotalDistanceKm": 15.742,
+        "TotalDurationMinutes": 246
+      },
+      {
+        "TechnicianId": "wendi-odell",
+        "TechnicianName": "Wendi O\u0027Dell",
+        "Stops": [
+          {
+            "SiteId": "st-lukes-meridian",
+            "SiteName": "St. Luke\u0027s Meridian",
+            "ExpectedArrivalTime": "2026-03-09T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "eagle-river-4",
+            "SiteName": "Eagle River 4",
+            "ExpectedArrivalTime": "2026-03-09T12:14:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "1661-shoreline-tok",
+            "SiteName": "1661 Shoreline (TOK)",
+            "ExpectedArrivalTime": "2026-03-09T14:47:00.0000000\u002B02:00",
+            "Sequence": 2
+          }
+        ],
+        "TotalDistanceKm": 33.764,
+        "TotalDurationMinutes": 458
+      }
+    ]
+  },
+  {
+    "Day": 16,
+    "Date": "2026-03-24",
+    "Routes": []
+  },
+  {
+    "Day": 17,
+    "Date": "2026-03-25",
+    "Routes": [
+      {
+        "TechnicianId": "allison-kennedy",
+        "TechnicianName": "Allison Kennedy",
+        "Stops": [
+          {
+            "SiteId": "bank-of-america-suite-620",
+            "SiteName": "Bank Of America Suite 620",
+            "ExpectedArrivalTime": "2026-03-11T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "st-alphonsus-boise-includes-day-surgery",
+            "SiteName": "St. Alphonsus Boise (includes Day Surgery)",
+            "ExpectedArrivalTime": "2026-03-11T08:56:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "jones-williams-fuhrman-gourley",
+            "SiteName": "Jones, Williams, Fuhrman \u0026 Gourley",
+            "ExpectedArrivalTime": "2026-03-11T14:52:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "small-mine-development",
+            "SiteName": "Small Mine Development",
+            "ExpectedArrivalTime": "2026-03-11T16:12:00.0000000\u002B02:00",
+            "Sequence": 3
+          }
+        ],
+        "TotalDistanceKm": 18.298,
+        "TotalDurationMinutes": 590
+      },
+      {
+        "TechnicianId": "kris-schenck",
+        "TechnicianName": "Kris Schenck",
+        "Stops": [
+          {
+            "SiteId": "select-health-suite-100",
+            "SiteName": "Select Health Suite 100",
+            "ExpectedArrivalTime": "2026-03-11T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "cosentino-suite-700",
+            "SiteName": "Cosentino Suite 700",
+            "ExpectedArrivalTime": "2026-03-11T08:29:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "united-rentals-inc",
+            "SiteName": "United Rentals Inc.",
+            "ExpectedArrivalTime": "2026-03-11T08:57:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "eagle-river-2-tok",
+            "SiteName": "Eagle River 2 (TOK)",
+            "ExpectedArrivalTime": "2026-03-11T09:27:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "ocean-network-express-suite-200",
+            "SiteName": "Ocean Network Express Suite 200",
+            "ExpectedArrivalTime": "2026-03-11T10:25:00.0000000\u002B02:00",
+            "Sequence": 4
+          }
+        ],
+        "TotalDistanceKm": 46.244,
+        "TotalDurationMinutes": 296
+      },
+      {
+        "TechnicianId": "maggie-christensen",
+        "TechnicianName": "Maggie Christensen",
+        "Stops": [],
+        "TotalDistanceKm": 0,
+        "TotalDurationMinutes": 0
+      },
+      {
+        "TechnicianId": "wendi-odell",
+        "TechnicianName": "Wendi O\u0027Dell",
+        "Stops": [
+          {
+            "SiteId": "teleo",
+            "SiteName": "Teleo",
+            "ExpectedArrivalTime": "2026-03-11T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "river-front",
+            "SiteName": "River Front",
+            "ExpectedArrivalTime": "2026-03-11T10:32:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "st-lukes-neurology-professional-building",
+            "SiteName": "St. Luke\u0027s Neurology (Professional Building)",
+            "ExpectedArrivalTime": "2026-03-11T10:51:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "thornton-byron-llp",
+            "SiteName": "Thornton Byron, LLP",
+            "ExpectedArrivalTime": "2026-03-11T11:11:00.0000000\u002B02:00",
+            "Sequence": 3
+          }
+        ],
+        "TotalDistanceKm": 11.253,
+        "TotalDurationMinutes": 265
+      }
+    ]
+  },
+  {
+    "Day": 18,
+    "Date": "2026-03-26",
+    "Routes": []
+  },
+  {
+    "Day": 19,
+    "Date": "2026-03-27",
+    "Routes": [
+      {
+        "TechnicianId": "allison-kennedy",
+        "TechnicianName": "Allison Kennedy",
+        "Stops": [
+          {
+            "SiteId": "hb-sprague-formerly-henriksen-butler",
+            "SiteName": "HB Sprague (formerly Henriksen Butler",
+            "ExpectedArrivalTime": "2026-03-13T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "dickinson-frozen-foods",
+            "SiteName": "Dickinson Frozen Foods",
+            "ExpectedArrivalTime": "2026-03-13T09:19:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "pig-latin",
+            "SiteName": "Pig Latin",
+            "ExpectedArrivalTime": "2026-03-13T09:46:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "eagles-gate-ii",
+            "SiteName": "Eagles Gate II",
+            "ExpectedArrivalTime": "2026-03-13T10:14:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "st-alphonsus-joint-preservation",
+            "SiteName": "St. Alphonsus Joint Preservation",
+            "ExpectedArrivalTime": "2026-03-13T13:28:00.0000000\u002B02:00",
+            "Sequence": 4
+          },
+          {
+            "SiteId": "design-center-gem-center-for-the-arts",
+            "SiteName": "Design Center/Gem Center for the Arts",
+            "ExpectedArrivalTime": "2026-03-13T15:04:00.0000000\u002B02:00",
+            "Sequence": 5
+          }
+        ],
+        "TotalDistanceKm": 35.883,
+        "TotalDurationMinutes": 535
+      },
+      {
+        "TechnicianId": "kris-schenck",
+        "TechnicianName": "Kris Schenck",
+        "Stops": [
+          {
+            "SiteId": "intermountain-medical-imaging-meridian-imi-meridian",
+            "SiteName": "Intermountain Medical Imaging, Meridian (IMI Meridian)",
+            "ExpectedArrivalTime": "2026-03-13T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "blue-cross",
+            "SiteName": "Blue Cross",
+            "ExpectedArrivalTime": "2026-03-13T08:59:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "dovetail-roundhouse",
+            "SiteName": "Dovetail (Roundhouse)",
+            "ExpectedArrivalTime": "2026-03-13T10:00:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "st-lukes-south-nampa-clinic-cae",
+            "SiteName": "St. Luke\u0027s South Nampa Clinic (CAE)",
+            "ExpectedArrivalTime": "2026-03-13T11:30:00.0000000\u002B02:00",
+            "Sequence": 3
+          }
+        ],
+        "TotalDistanceKm": 53.489,
+        "TotalDurationMinutes": 315
+      },
+      {
+        "TechnicianId": "maggie-christensen",
+        "TechnicianName": "Maggie Christensen",
+        "Stops": [],
+        "TotalDistanceKm": 0,
+        "TotalDurationMinutes": 0
+      },
+      {
+        "TechnicianId": "wendi-odell",
+        "TechnicianName": "Wendi O\u0027Dell",
+        "Stops": [
+          {
+            "SiteId": "kirton-mcconkie-suite-930",
+            "SiteName": "Kirton McConkie Suite 930",
+            "ExpectedArrivalTime": "2026-03-13T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "the-lucy-roundhouse",
+            "SiteName": "The Lucy (Roundhouse)",
+            "ExpectedArrivalTime": "2026-03-13T08:30:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "futura-title-escrow-formerly-alliance-title",
+            "SiteName": "Futura Title \u0026 Escrow (formerly Alliance Title)",
+            "ExpectedArrivalTime": "2026-03-13T08:50:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "hb-sprague-formerly-henriksen-butler-2",
+            "SiteName": "HB Sprague (formerly Henriksen Butler",
+            "ExpectedArrivalTime": "2026-03-13T09:36:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "kno2",
+            "SiteName": "KNO2",
+            "ExpectedArrivalTime": "2026-03-13T09:46:00.0000000\u002B02:00",
+            "Sequence": 4
+          }
+        ],
+        "TotalDistanceKm": 5.789,
+        "TotalDurationMinutes": 185
+      }
+    ]
+  },
+  {
+    "Day": 20,
+    "Date": "2026-03-28",
+    "Routes": []
+  },
+  {
+    "Day": 21,
+    "Date": "2026-03-29",
+    "Routes": []
+  },
+  {
+    "Day": 22,
+    "Date": "2026-03-30",
+    "Routes": [
+      {
+        "TechnicianId": "allison-kennedy",
+        "TechnicianName": "Allison Kennedy",
+        "Stops": [
+          {
+            "SiteId": "rocky-mountain-companies",
+            "SiteName": "Rocky Mountain Companies",
+            "ExpectedArrivalTime": "2026-03-09T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "eagle-river-6-rw-investments-tok",
+            "SiteName": "Eagle River 6 RW Investments (TOK)",
+            "ExpectedArrivalTime": "2026-03-09T09:21:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "profit-score",
+            "SiteName": "Profit Score",
+            "ExpectedArrivalTime": "2026-03-09T09:36:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "st-alphonsus-boise-hartman-building-n6-entrance",
+            "SiteName": "St. Alphonsus Boise (Hartman Building N6 Entrance)",
+            "ExpectedArrivalTime": "2026-03-09T10:22:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "ada-county-operations",
+            "SiteName": "Ada County Operations",
+            "ExpectedArrivalTime": "2026-03-09T10:59:00.0000000\u002B02:00",
+            "Sequence": 4
+          },
+          {
+            "SiteId": "asml",
+            "SiteName": "ASML",
+            "ExpectedArrivalTime": "2026-03-09T11:40:00.0000000\u002B02:00",
+            "Sequence": 5
+          }
+        ],
+        "TotalDistanceKm": 40.014,
+        "TotalDurationMinutes": 407
+      },
+      {
+        "TechnicianId": "kris-schenck",
+        "TechnicianName": "Kris Schenck",
+        "Stops": [
+          {
+            "SiteId": "rw-investment-management",
+            "SiteName": "RW Investment Management",
+            "ExpectedArrivalTime": "2026-03-09T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "deanne-shea-2",
+            "SiteName": "DeAnne Shea",
+            "ExpectedArrivalTime": "2026-03-09T09:24:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "deanne-shea",
+            "SiteName": "DeAnne Shea",
+            "ExpectedArrivalTime": "2026-03-09T09:34:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "renu-medispa",
+            "SiteName": "ReNu Medispa",
+            "ExpectedArrivalTime": "2026-03-09T10:13:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "arcadia-investments",
+            "SiteName": "Arcadia Investments",
+            "ExpectedArrivalTime": "2026-03-09T10:33:00.0000000\u002B02:00",
+            "Sequence": 4
+          }
+        ],
+        "TotalDistanceKm": 54.31,
+        "TotalDurationMinutes": 258
+      },
+      {
+        "TechnicianId": "maggie-christensen",
+        "TechnicianName": "Maggie Christensen",
+        "Stops": [
+          {
+            "SiteId": "st-lukes-magic-valley-pallative-care-mob-2",
+            "SiteName": "St. Luke\u0027s Magic Valley (Pallative Care MOB #2)",
+            "ExpectedArrivalTime": "2026-03-09T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "st-lukes-magic-valley-mob2-and-occupational-health",
+            "SiteName": "St. Luke\u0027s Magic Valley (MOB#2 and Occupational Health)",
+            "ExpectedArrivalTime": "2026-03-09T08:10:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "magic-valley-regional-airport",
+            "SiteName": "Magic Valley Regional Airport",
+            "ExpectedArrivalTime": "2026-03-09T09:28:00.0000000\u002B02:00",
+            "Sequence": 2
+          }
+        ],
+        "TotalDistanceKm": 26.07,
+        "TotalDurationMinutes": 183
+      },
+      {
+        "TechnicianId": "wendi-odell",
+        "TechnicianName": "Wendi O\u0027Dell",
+        "Stops": [
+          {
+            "SiteId": "jennifer-miller",
+            "SiteName": "Jennifer Miller",
+            "ExpectedArrivalTime": "2026-03-09T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "st-lukes-internal-medicine-park-blvd",
+            "SiteName": "St. Luke\u0027s Internal Medicine (Park Blvd)",
+            "ExpectedArrivalTime": "2026-03-09T09:35:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "st-lukes-telehealth",
+            "SiteName": "St. Luke\u0027s Telehealth",
+            "ExpectedArrivalTime": "2026-03-09T09:55:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "st-lukes-rehabilitation-hospital-elks",
+            "SiteName": "St. Luke\u0027s Rehabilitation Hospital (Elk\u0027s)",
+            "ExpectedArrivalTime": "2026-03-09T11:41:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "clifton-larson-allen-llp",
+            "SiteName": "Clifton Larson Allen LLP",
+            "ExpectedArrivalTime": "2026-03-09T13:12:00.0000000\u002B02:00",
+            "Sequence": 4
+          }
+        ],
+        "TotalDistanceKm": 12.244,
+        "TotalDurationMinutes": 395
+      }
+    ]
+  },
+  {
+    "Day": 23,
+    "Date": "2026-03-31",
+    "Routes": [
+      {
+        "TechnicianId": "allison-kennedy",
+        "TechnicianName": "Allison Kennedy",
+        "Stops": [
+          {
+            "SiteId": "new-life-office",
+            "SiteName": "New Life Office",
+            "ExpectedArrivalTime": "2026-03-10T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "epionce",
+            "SiteName": "Epionce",
+            "ExpectedArrivalTime": "2026-03-10T08:51:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "lyle-pearson",
+            "SiteName": "Lyle Pearson",
+            "ExpectedArrivalTime": "2026-03-10T11:25:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "freeform-formerly-business-interiors-of-idaho",
+            "SiteName": "FreeForm (formerly Business Interiors of Idaho)",
+            "ExpectedArrivalTime": "2026-03-10T12:49:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "consor-north-america-inc",
+            "SiteName": "Consor North America, Inc.",
+            "ExpectedArrivalTime": "2026-03-10T13:53:00.0000000\u002B02:00",
+            "Sequence": 4
+          }
+        ],
+        "TotalDistanceKm": 24.45,
+        "TotalDurationMinutes": 440
+      },
+      {
+        "TechnicianId": "kris-schenck",
+        "TechnicianName": "Kris Schenck",
+        "Stops": [
+          {
+            "SiteId": "idaho-otology",
+            "SiteName": "Idaho Otology",
+            "ExpectedArrivalTime": "2026-03-10T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "sandros-residence",
+            "SiteName": "Sandros Residence",
+            "ExpectedArrivalTime": "2026-03-10T08:20:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "spa-building",
+            "SiteName": "Spa Building",
+            "ExpectedArrivalTime": "2026-03-10T09:22:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "st-lukes-internal-medicine-cloverdale",
+            "SiteName": "St. Luke\u0027s Internal Medicine (Cloverdale)",
+            "ExpectedArrivalTime": "2026-03-10T09:48:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "fidelity-investments-suite-140-ambius",
+            "SiteName": "Fidelity Investments, Suite 140 (Ambius)",
+            "ExpectedArrivalTime": "2026-03-10T10:25:00.0000000\u002B02:00",
+            "Sequence": 4
+          }
+        ],
+        "TotalDistanceKm": 44.097,
+        "TotalDurationMinutes": 238
+      },
+      {
+        "TechnicianId": "maggie-christensen",
+        "TechnicianName": "Maggie Christensen",
+        "Stops": [
+          {
+            "SiteId": "river-view-eye-specialist-taylor-halverson",
+            "SiteName": "River View Eye Specialist (Taylor \u0026 Halverson)",
+            "ExpectedArrivalTime": "2026-03-10T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "st-lukes-magic-valley-surgery-center",
+            "SiteName": "St. Luke\u0027s Magic Valley (Surgery Center)",
+            "ExpectedArrivalTime": "2026-03-10T08:31:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "st-lukes-magic-valley-derm",
+            "SiteName": "St. Luke\u0027s Magic Valley (Derm)",
+            "ExpectedArrivalTime": "2026-03-10T08:59:00.0000000\u002B02:00",
+            "Sequence": 2
+          }
+        ],
+        "TotalDistanceKm": 12.271,
+        "TotalDurationMinutes": 131
+      },
+      {
+        "TechnicianId": "wendi-odell",
+        "TechnicianName": "Wendi O\u0027Dell",
+        "Stops": [
+          {
+            "SiteId": "lyle-pearson-2",
+            "SiteName": "Lyle Pearson",
+            "ExpectedArrivalTime": "2026-03-10T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "armanino",
+            "SiteName": "Armanino",
+            "ExpectedArrivalTime": "2026-03-10T11:09:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "bailey-glasser",
+            "SiteName": "Bailey Glasser",
+            "ExpectedArrivalTime": "2026-03-10T11:49:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "st-lukes-admin-boise-formerly-falcon-bldg",
+            "SiteName": "St. Luke\u0027s Admin Boise (formerly Falcon Bldg)",
+            "ExpectedArrivalTime": "2026-03-10T13:06:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "duft-watterson",
+            "SiteName": "Duft Watterson",
+            "ExpectedArrivalTime": "2026-03-10T13:53:00.0000000\u002B02:00",
+            "Sequence": 4
+          }
+        ],
+        "TotalDistanceKm": 15.849,
+        "TotalDurationMinutes": 407
+      }
+    ]
+  },
+  {
+    "Day": 24,
+    "Date": "2026-04-01",
+    "Routes": [
+      {
+        "TechnicianId": "allison-kennedy",
+        "TechnicianName": "Allison Kennedy",
+        "Stops": [
+          {
+            "SiteId": "tom-nelson",
+            "SiteName": "Tom Nelson",
+            "ExpectedArrivalTime": "2026-03-11T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "st-lukes-neurology-2nd-street",
+            "SiteName": "St. Luke\u0027s Neurology (2nd Street)",
+            "ExpectedArrivalTime": "2026-03-11T09:18:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "hepworth-holzer-llp",
+            "SiteName": "Hepworth Holzer LLP",
+            "ExpectedArrivalTime": "2026-03-11T09:28:00.0000000\u002B02:00",
+            "Sequence": 2
+          }
+        ],
+        "TotalDistanceKm": 14.784,
+        "TotalDurationMinutes": 160
+      },
+      {
+        "TechnicianId": "kris-schenck",
+        "TechnicianName": "Kris Schenck",
+        "Stops": [
+          {
+            "SiteId": "st-lukes-portico-east",
+            "SiteName": "St. Luke\u0027s (Portico East)",
+            "ExpectedArrivalTime": "2026-03-11T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "cwi-apin-pintail-center",
+            "SiteName": "CWI APIN (Pintail Center)",
+            "ExpectedArrivalTime": "2026-03-11T08:31:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "ahlquist-suite-550-2",
+            "SiteName": "Ahlquist Suite 550",
+            "ExpectedArrivalTime": "2026-03-11T09:02:00.0000000\u002B02:00",
+            "Sequence": 2
+          }
+        ],
+        "TotalDistanceKm": 30.014,
+        "TotalDurationMinutes": 243
+      },
+      {
+        "TechnicianId": "maggie-christensen",
+        "TechnicianName": "Maggie Christensen",
+        "Stops": [
+          {
+            "SiteId": "st-lukes-magic-valley-main-campus",
+            "SiteName": "St. Luke\u0027s Magic Valley (Main Campus)",
+            "ExpectedArrivalTime": "2026-03-11T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          }
+        ],
+        "TotalDistanceKm": 10.94,
+        "TotalDurationMinutes": 376
+      },
+      {
+        "TechnicianId": "wendi-odell",
+        "TechnicianName": "Wendi O\u0027Dell",
+        "Stops": [
+          {
+            "SiteId": "lombard-conrad-architects",
+            "SiteName": "Lombard Conrad Architects",
+            "ExpectedArrivalTime": "2026-03-11T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "jill-aldape",
+            "SiteName": "Jill Aldape",
+            "ExpectedArrivalTime": "2026-03-11T10:05:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "michelle-mings",
+            "SiteName": "Michelle Mings",
+            "ExpectedArrivalTime": "2026-03-11T10:53:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "1673-shoreline-tok",
+            "SiteName": "1673 Shoreline (TOK)",
+            "ExpectedArrivalTime": "2026-03-11T11:57:00.0000000\u002B02:00",
+            "Sequence": 3
+          }
+        ],
+        "TotalDistanceKm": 12.758,
+        "TotalDurationMinutes": 281
+      }
+    ]
+  },
+  {
+    "Day": 25,
+    "Date": "2026-04-02",
+    "Routes": [
+      {
+        "TechnicianId": "allison-kennedy",
+        "TechnicianName": "Allison Kennedy",
+        "Stops": [
+          {
+            "SiteId": "st-lukes-hospital-boise",
+            "SiteName": "St. Luke\u0027s Hospital Boise",
+            "ExpectedArrivalTime": "2026-03-12T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "fidelity-building-downtown",
+            "SiteName": "Fidelity Building Downtown",
+            "ExpectedArrivalTime": "2026-03-12T12:16:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "st-alphonsus-eagle",
+            "SiteName": "St. Alphonsus Eagle",
+            "ExpectedArrivalTime": "2026-03-12T12:52:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "st-alphonsus-boise-samb",
+            "SiteName": "St. Alphonsus Boise (SAMB)",
+            "ExpectedArrivalTime": "2026-03-12T15:09:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "idaho-sports-medicine-institute-ismi",
+            "SiteName": "Idaho Sports Medicine Institute (ISMI)",
+            "ExpectedArrivalTime": "2026-03-12T15:31:00.0000000\u002B02:00",
+            "Sequence": 4
+          }
+        ],
+        "TotalDistanceKm": 37.169,
+        "TotalDurationMinutes": 534
+      },
+      {
+        "TechnicianId": "kris-schenck",
+        "TechnicianName": "Kris Schenck",
+        "Stops": [
+          {
+            "SiteId": "comstock-bush-suite-500",
+            "SiteName": "Comstock \u0026 Bush Suite 500",
+            "ExpectedArrivalTime": "2026-03-12T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "cheesecake-factory-ambius",
+            "SiteName": "Cheesecake Factory (Ambius)",
+            "ExpectedArrivalTime": "2026-03-12T09:09:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "copperstone-dental",
+            "SiteName": "Copperstone Dental",
+            "ExpectedArrivalTime": "2026-03-12T09:44:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "dmb-1157",
+            "SiteName": "DMB (1157)",
+            "ExpectedArrivalTime": "2026-03-12T10:07:00.0000000\u002B02:00",
+            "Sequence": 3
+          }
+        ],
+        "TotalDistanceKm": 47.451,
+        "TotalDurationMinutes": 293
+      },
+      {
+        "TechnicianId": "maggie-christensen",
+        "TechnicianName": "Maggie Christensen",
+        "Stops": [],
+        "TotalDistanceKm": 0,
+        "TotalDurationMinutes": 0
+      },
+      {
+        "TechnicianId": "wendi-odell",
+        "TechnicianName": "Wendi O\u0027Dell",
+        "Stops": [
+          {
+            "SiteId": "futura-corp",
+            "SiteName": "Futura Corp.",
+            "ExpectedArrivalTime": "2026-03-12T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "br-wealth-management",
+            "SiteName": "BR Wealth Management",
+            "ExpectedArrivalTime": "2026-03-12T09:00:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "center-for-lifetime-health",
+            "SiteName": "Center For Lifetime Health",
+            "ExpectedArrivalTime": "2026-03-12T09:33:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "jayme-mullaney",
+            "SiteName": "Jayme Mullaney",
+            "ExpectedArrivalTime": "2026-03-12T10:24:00.0000000\u002B02:00",
+            "Sequence": 3
+          },
+          {
+            "SiteId": "johnson-may-suite-205",
+            "SiteName": "Johnson May Suite 205",
+            "ExpectedArrivalTime": "2026-03-12T12:29:00.0000000\u002B02:00",
+            "Sequence": 4
+          }
+        ],
+        "TotalDistanceKm": 16.208,
+        "TotalDurationMinutes": 383
+      }
+    ]
+  },
+  {
+    "Day": 26,
+    "Date": "2026-04-03",
+    "Routes": []
+  },
+  {
+    "Day": 27,
+    "Date": "2026-04-04",
+    "Routes": []
+  },
+  {
+    "Day": 28,
+    "Date": "2026-04-05",
+    "Routes": []
   }
 ]
