@@ -185,7 +185,6 @@ public class Function
             var allRoutes = finalResult.SelectMany(w => w.Routes).ToList();
 
             OutputJsonWriter.TryWriteScheduleJson(allRoutes, request.Technicians, request.Sites, context.Logger);
-            OutputJsonWriter.TryWriteTimetableJson(finalResult, context.Logger);
 
             context.Logger.LogLine("[DONE] Function finished successfully");
             return finalResult;

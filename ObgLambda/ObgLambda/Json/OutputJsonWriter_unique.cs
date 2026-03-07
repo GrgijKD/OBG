@@ -19,12 +19,11 @@ namespace ObgLambda.Json
         private const string DefaultOutputFileName = "output.json";
         private const string DefaultTimetableFileName = "timetable.json";
         private const string DefaultMasterCalendarFileName = "master-calendar.json";
-        private const string DefaultTimeZone = "Europe/Kyiv"; // TODO: later derive from office coordinates
 
         // -----------------------------
         // DTOs for the agreed presentation JSON
         // -----------------------------
-        public sealed record Meta(string timeZone, string scheduleStartDate, int horizonDays);
+        public sealed record Meta(string scheduleStartDate, int horizonDays);
 
         public sealed record TechnicianDirectoryItem(string techId, string name);
         public sealed record ServiceDirectoryItem(string serviceId, string name);
@@ -356,7 +355,7 @@ namespace ObgLambda.Json
             var weeks = BuildWeeks(dayDtos);
 
             return new OutputRoot(
-                meta: new Meta(DefaultTimeZone, scheduleStart.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), horizonDays),
+                meta: new Meta(scheduleStart.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), horizonDays),
                 technicianDirectory: techDirectory.OrderBy(t => t.techId).ToList(),
                 serviceDirectory: serviceDirectory.OrderBy(s => s.serviceId).ToList(),
                 weeks: weeks
