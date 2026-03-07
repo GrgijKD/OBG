@@ -1,0 +1,124 @@
+[
+  {
+    "Day": 1,
+    "Date": "2026-03-09",
+    "Routes": [
+      {
+        "TechnicianId": "allison-kennedy",
+        "TechnicianName": "Allison Kennedy",
+        "Stops": [
+          {
+            "SiteId": "charles-schwab-ambius",
+            "SiteName": "Charles Schwab (Ambius)",
+            "ExpectedArrivalTime": "2026-03-09T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "buffington-mohr-mcneal-formerly-tbfm",
+            "SiteName": "Buffington Mohr McNeal (formerly TBFM)",
+            "ExpectedArrivalTime": "2026-03-09T09:45:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "pat-and-john-poreba",
+            "SiteName": "Pat and John Poreba",
+            "ExpectedArrivalTime": "2026-03-09T10:27:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "caprock",
+            "SiteName": "Caprock",
+            "ExpectedArrivalTime": "2026-03-09T11:04:00.0000000\u002B02:00",
+            "Sequence": 3
+          }
+        ],
+        "TotalDistanceKm": 17.023,
+        "TotalDurationMinutes": 284
+      },
+      {
+        "TechnicianId": "kris-schenck",
+        "TechnicianName": "Kris Schenck",
+        "Stops": [
+          {
+            "SiteId": "e4-connect",
+            "SiteName": "E4 Connect",
+            "ExpectedArrivalTime": "2026-03-09T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "spurwing-country-club",
+            "SiteName": "Spurwing Country Club",
+            "ExpectedArrivalTime": "2026-03-09T08:54:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "cwi-micron",
+            "SiteName": "CWI Micron",
+            "ExpectedArrivalTime": "2026-03-09T10:08:00.0000000\u002B02:00",
+            "Sequence": 2
+          }
+        ],
+        "TotalDistanceKm": 44.045,
+        "TotalDurationMinutes": 220
+      },
+      {
+        "TechnicianId": "maggie-christensen",
+        "TechnicianName": "Maggie Christensen",
+        "Stops": [
+          {
+            "SiteId": "westrock",
+            "SiteName": "Westrock",
+            "ExpectedArrivalTime": "2026-03-09T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "st-lukes-magic-valley-physicians-clinic",
+            "SiteName": "St. Luke\u0027s Magic Valley (Physicians Clinic)",
+            "ExpectedArrivalTime": "2026-03-09T08:55:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "hub-international-magic-valley",
+            "SiteName": "Hub International (Magic Valley)",
+            "ExpectedArrivalTime": "2026-03-09T09:38:00.0000000\u002B02:00",
+            "Sequence": 2
+          },
+          {
+            "SiteId": "stevens-pierce-associates",
+            "SiteName": "Stevens Pierce \u0026 Associates",
+            "ExpectedArrivalTime": "2026-03-09T10:45:00.0000000\u002B02:00",
+            "Sequence": 3
+          }
+        ],
+        "TotalDistanceKm": 15.742,
+        "TotalDurationMinutes": 246
+      },
+      {
+        "TechnicianId": "wendi-odell",
+        "TechnicianName": "Wendi O\u0027Dell",
+        "Stops": [
+          {
+            "SiteId": "st-lukes-meridian",
+            "SiteName": "St. Luke\u0027s Meridian",
+            "ExpectedArrivalTime": "2026-03-09T08:00:00.0000000\u002B02:00",
+            "Sequence": 0
+          },
+          {
+            "SiteId": "eagle-river-4",
+            "SiteName": "Eagle River 4",
+            "ExpectedArrivalTime": "2026-03-09T12:14:00.0000000\u002B02:00",
+            "Sequence": 1
+          },
+          {
+            "SiteId": "1661-shoreline-tok",
+            "SiteName": "1661 Shoreline (TOK)",
+            "ExpectedArrivalTime": "2026-03-09T14:47:00.0000000\u002B02:00",
+            "Sequence": 2
+          }
+        ],
+        "TotalDistanceKm": 33.764,
+        "TotalDurationMinutes": 458
+      }
+    ]
+  }
+]
