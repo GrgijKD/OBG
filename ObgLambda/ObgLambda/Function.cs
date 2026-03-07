@@ -47,7 +47,11 @@ public class Function
             context.Logger.LogLine("Генерація Майстер-розкладу...");
             var geocodingService = new GeocodingService(_locationClient);
 
-            var masterSchedule = MasterSchedulerService.GenerateMasterSchedule(request.Sites, request.Technicians);
+            var serviceIdMap = request.Sites
+                .Select((site, index) => new { site.Id, DisplayId = $"srv-{index + 1}" })
+                .ToDictionary(x => x.Id, x => x.DisplayId);
+
+            var masterSchedule = MasterSchedulerService.GenerateMasterSchedule(request.Sites, request.Technicians, serviceIdMap);
             int horizon = masterSchedule.Count;
             DateTime cycleStartDate = GetNextMonday(DateTime.Today);
 
