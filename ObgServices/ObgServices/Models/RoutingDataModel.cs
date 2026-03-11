@@ -1,4 +1,4 @@
-﻿namespace ObgServices.Models
+namespace ObgServices.Models
 {
     public class RoutingDataModel
     {
@@ -10,6 +10,8 @@
 
         public int[] Starts { get; set; } = [];
         public int[] Ends { get; set; } = [];
+        public int[] BreakNodes { get; set; } = [];
+        public int SiteOffset { get; set; }
 
         public List<ServiceSite> ExpandedSites { get; set; } = [];
     }

@@ -217,28 +217,19 @@ namespace ObgLambda.Json
             var techList = (technicians ?? Array.Empty<Technician>()).ToList();
             var siteList = (sites ?? Array.Empty<ServiceSite>()).ToList();
 
-            // Map internal IDs to presentation sequential IDs
-            // tech: trch-1, trch-2, ... in TECH LIST order if provided; otherwise, routes order.
             var techIdMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var techDirectory = new List<TechnicianDirectoryItem>();
 
             IEnumerable<(string InternalId, string Name)> techSource;
             if (techList.Count > 0)
-            {
                 techSource = techList.Select(t => (t.Id, t.Name));
-            }
             else
-            {
                 techSource = routeList.Select(r => (r.TechnicianId, string.IsNullOrWhiteSpace(r.TechnicianName) ? r.TechnicianId : r.TechnicianName));
-            }
 
             var techSeq = 0;
             foreach (var t in techSource)
             {
-                if (string.IsNullOrWhiteSpace(t.InternalId))
-                    continue;
-
-                if (techIdMap.ContainsKey(t.InternalId))
+                if (string.IsNullOrWhiteSpace(t.InternalId) || techIdMap.ContainsKey(t.InternalId))
                     continue;
 
                 techSeq++;
@@ -247,7 +238,6 @@ namespace ObgLambda.Json
                 techDirectory.Add(new TechnicianDirectoryItem(outId, t.Name));
             }
 
-            // sites: srv-1, srv-2, ... in SITE LIST order if provided; otherwise, first appearance in routes.
             var siteIdMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             var serviceDirectory = new List<ServiceDirectoryItem>();
 
@@ -260,7 +250,7 @@ namespace ObgLambda.Json
             {
                 siteSource = routeList
                     .SelectMany(r => r.Stops ?? new List<RouteStop>())
-                    .Where(s => !string.IsNullOrWhiteSpace(s.SiteId))
+                    .Where(s => string.Equals(s.Type, "service", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(s.SiteId))
                     .GroupBy(s => s.SiteId)
                     .Select(g => (g.Key, g.Select(x => x.SiteName).FirstOrDefault(n => !string.IsNullOrWhiteSpace(n)) ?? g.Key));
             }
@@ -268,10 +258,7 @@ namespace ObgLambda.Json
             var srvSeq = 0;
             foreach (var s in siteSource)
             {
-                if (string.IsNullOrWhiteSpace(s.InternalId))
-                    continue;
-
-                if (siteIdMap.ContainsKey(s.InternalId))
+                if (string.IsNullOrWhiteSpace(s.InternalId) || siteIdMap.ContainsKey(s.InternalId))
                     continue;
 
                 srvSeq++;
@@ -280,46 +267,44 @@ namespace ObgLambda.Json
                 serviceDirectory.Add(new ServiceDirectoryItem(outId, s.Name));
             }
 
-            // Schedule start date: next calendar Monday
             var scheduleStart = NextMonday(DateTime.Today);
-
-            // Determine offset between solver dates and desired presentation dates.
             var minSolverDate = routeList
                 .SelectMany(r => r.Stops ?? new List<RouteStop>())
                 .Select(s => s.ExpectedArrivalTime.Date)
                 .DefaultIfEmpty(scheduleStart.Date)
                 .Min();
-
             var dayOffset = (scheduleStart.Date - minSolverDate).Days;
 
-            // helper maps
             var techById = techList.ToDictionary(t => t.Id, t => t, StringComparer.OrdinalIgnoreCase);
             var siteById = siteList.ToDictionary(s => s.Id, s => s, StringComparer.OrdinalIgnoreCase);
 
-            // Collect all stop records with shifted dates
-            var stopRecs = new List<(string TechInternalId, DateTime Arrival, RouteStop Stop)>();
-            foreach (var r in routeList)
+            var shiftedRoutes = routeList.Select(r => new OptimizedRoute
             {
-                foreach (var st in (r.Stops ?? new List<RouteStop>()))
-                {
-                    var shiftedArrival = st.ExpectedArrivalTime.AddDays(dayOffset);
-                    stopRecs.Add((r.TechnicianId, shiftedArrival, new RouteStop
+                TechnicianId = r.TechnicianId,
+                TechnicianName = r.TechnicianName,
+                RouteStartTime = r.RouteStartTime.AddDays(dayOffset),
+                RouteEndTime = r.RouteEndTime.AddDays(dayOffset),
+                TotalDistanceKm = r.TotalDistanceKm,
+                TotalDurationMinutes = r.TotalDurationMinutes,
+                Stops = (r.Stops ?? new List<RouteStop>())
+                    .Select(st => new RouteStop
                     {
                         SiteId = st.SiteId,
                         SiteName = st.SiteName,
-                        ExpectedArrivalTime = shiftedArrival,
-                        Sequence = st.Sequence
-                    }));
-                }
-            }
+                        ExpectedArrivalTime = st.ExpectedArrivalTime.AddDays(dayOffset),
+                        Sequence = st.Sequence,
+                        Type = st.Type,
+                        DurationMinutes = st.DurationMinutes,
+                        Address = st.Address
+                    })
+                    .ToList()
+            }).ToList();
 
-            // horizonDays based on service intervals
             var intervals = siteList.Select(s => s.VisitIntervalDays).Where(d => d > 0).ToList();
             var horizonDays = ComputeHorizonDays(intervals);
 
-            // Build days => weeks
-            var dayGroups = stopRecs
-                .GroupBy(x => x.Arrival.Date)
+            var dayGroups = shiftedRoutes
+                .GroupBy(r => (r.RouteStartTime != default ? r.RouteStartTime : r.Stops.FirstOrDefault()?.ExpectedArrivalTime ?? scheduleStart).Date)
                 .OrderBy(g => g.Key)
                 .ToList();
 
@@ -329,29 +314,16 @@ namespace ObgLambda.Json
                 var dayStr = dg.Key.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
                 var routesForDay = dg
-                    .GroupBy(x => x.TechInternalId, StringComparer.OrdinalIgnoreCase)
-                    .OrderBy(g => techIdMap.TryGetValue(g.Key, out var outId) ? outId : g.Key)
-                    .Select(techGroup =>
-                    {
-                        var techInternalId = techGroup.Key;
-                        var outTechId = techIdMap.TryGetValue(techInternalId, out var tid) ? tid : techInternalId;
-
-                        var orderedStops = techGroup
-                            .OrderBy(x => x.Stop.Sequence)
-                            .ThenBy(x => x.Stop.ExpectedArrivalTime)
-                            .Select(x => x.Stop)
-                            .ToList();
-
-                        var stopsOut = BuildStopsForRoute(orderedStops, techInternalId, techById, siteById, siteIdMap);
-
-                        return new RouteDto(outTechId, stopsOut);
-                    })
+                    .OrderBy(r => techIdMap.TryGetValue(r.TechnicianId, out var outId) ? outId : r.TechnicianId)
+                    .Select(route => new RouteDto(
+                        techId: techIdMap.TryGetValue(route.TechnicianId, out var tid) ? tid : route.TechnicianId,
+                        stops: BuildStopsForRoute(route, techById, siteById, siteIdMap)
+                    ))
                     .ToList();
 
                 dayDtos.Add(new DayDto(dayStr, routesForDay));
             }
 
-            // Weeks grouping
             var weeks = BuildWeeks(dayDtos);
 
             return new OutputRoot(
@@ -480,42 +452,60 @@ namespace ObgLambda.Json
         }
 
         private static List<StopDto> BuildStopsForRoute(
-            List<RouteStop> orderedStops,
-            string techInternalId,
+            OptimizedRoute route,
             Dictionary<string, Technician> techById,
             Dictionary<string, ServiceSite> siteById,
             Dictionary<string, string> siteIdMap
         )
         {
             var outStops = new List<StopDto>();
+            var orderedStops = (route.Stops ?? new List<RouteStop>())
+                .OrderBy(s => s.Sequence)
+                .ThenBy(s => s.ExpectedArrivalTime)
+                .ToList();
+
             if (orderedStops.Count == 0)
                 return outStops;
 
-            techById.TryGetValue(techInternalId, out var tech);
+            techById.TryGetValue(route.TechnicianId, out var tech);
 
             string? officeStartAddr = tech?.StartLocation?.FullAddress ?? tech?.OfficeAddressRaw ?? tech?.HomeAddressRaw;
             string? officeEndAddr = tech?.EndLocation?.FullAddress ?? tech?.OfficeAddressRaw ?? tech?.HomeAddressRaw;
 
-            var first = orderedStops.First();
-            var last = orderedStops.Last();
+            var startTime = route.RouteStartTime != default
+                ? route.RouteStartTime
+                : orderedStops.First().ExpectedArrivalTime;
 
-            // Start: use first arrival time (we don't have explicit departure time without touching solver)
+            var endTime = route.RouteEndTime != default
+                ? route.RouteEndTime
+                : orderedStops.Last().ExpectedArrivalTime;
+
             outStops.Add(new StopDto(
                 type: "start",
-                arrivalTime: first.ExpectedArrivalTime.ToString("HH:mm", CultureInfo.InvariantCulture),
+                arrivalTime: startTime.ToString("HH:mm", CultureInfo.InvariantCulture),
                 durationMinutes: 0,
                 address: officeStartAddr
             ));
 
-            // Services (+ optional break after first service)
-            for (var i = 0; i < orderedStops.Count; i++)
+            string? lastKnownAddress = officeStartAddr;
+            foreach (var s in orderedStops)
             {
-                var s = orderedStops[i];
-                siteById.TryGetValue(s.SiteId, out var site);
+                if (string.Equals(s.Type, "break", StringComparison.OrdinalIgnoreCase))
+                {
+                    outStops.Add(new StopDto(
+                        type: "break",
+                        arrivalTime: s.ExpectedArrivalTime.ToString("HH:mm", CultureInfo.InvariantCulture),
+                        durationMinutes: s.DurationMinutes,
+                        address: s.Address ?? lastKnownAddress
+                    ));
+                    continue;
+                }
 
+                siteById.TryGetValue(s.SiteId, out var site);
                 var serviceId = siteIdMap.TryGetValue(s.SiteId, out var outSid) ? outSid : null;
-                var duration = site?.VisitDuration ?? 0;
-                var addr = site?.Address;
+                var duration = s.DurationMinutes > 0 ? s.DurationMinutes : site?.VisitDuration ?? 0;
+                var addr = s.Address ?? site?.Address;
+                lastKnownAddress = addr ?? lastKnownAddress;
 
                 outStops.Add(new StopDto(
                     type: "service",
@@ -524,30 +514,11 @@ namespace ObgLambda.Json
                     address: addr,
                     serviceId: serviceId
                 ));
-
-                // "Paint" a break after the first service if technician has it
-                if (i == 0 && tech?.MinBreakMinutes is int breakMin && breakMin > 0)
-                {
-                    var breakArrival = s.ExpectedArrivalTime.AddMinutes(duration);
-                    outStops.Add(new StopDto(
-                        type: "break",
-                        arrivalTime: breakArrival.ToString("HH:mm", CultureInfo.InvariantCulture),
-                        durationMinutes: breakMin,
-                        address: addr
-                    ));
-                }
             }
-
-            // End: approximate as last arrival + last service duration
-            var lastDuration = 0;
-            if (siteById.TryGetValue(last.SiteId, out var lastSite))
-                lastDuration = lastSite.VisitDuration;
-
-            var endArrival = last.ExpectedArrivalTime.AddMinutes(lastDuration);
 
             outStops.Add(new StopDto(
                 type: "end_point",
-                arrivalTime: endArrival.ToString("HH:mm", CultureInfo.InvariantCulture),
+                arrivalTime: endTime.ToString("HH:mm", CultureInfo.InvariantCulture),
                 durationMinutes: 0,
                 address: officeEndAddr
             ));

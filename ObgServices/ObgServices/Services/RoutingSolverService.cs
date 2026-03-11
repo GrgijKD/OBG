@@ -1,4 +1,4 @@
-﻿using Google.OrTools.ConstraintSolver;
+using Google.OrTools.ConstraintSolver;
 using Google.Protobuf.WellKnownTypes;
 using ObgServices.Models;
 
@@ -7,6 +7,7 @@ namespace ObgServices.Services
     public class RoutingSolverService
     {
         private const bool EnableSolverLogs = false;
+
         public static List<OptimizedRoute> SolveRouting(RoutingDataModel data, List<Technician> techs, DayOfWeek day)
         {
             if (techs.Count == 0)
@@ -16,8 +17,7 @@ namespace ObgServices.Services
             RoutingModel routing = new(manager);
             var solver = routing.solver();
 
-            // Локації починаються після всіх стартів і фінішів техніків
-            int siteOffset = data.VehicleCount * 2;
+            int siteOffset = data.SiteOffset;
 
             int timeCallbackIndex = routing.RegisterTransitCallback((fromIndex, toIndex) =>
             {
@@ -49,15 +49,14 @@ namespace ObgServices.Services
                     if (siteIdx >= 0 && siteIdx < data.ExpandedSites.Count)
                     {
                         var site = data.ExpandedSites[siteIdx];
-                        if (site.ProhibitedTechIds.Contains(tech.Id)) return dist + 10_000; // штраф за небажаного техніка
-                        if (site.PreferredTechIds.Contains(tech.Id)) return Math.Max(0, dist - 5_000); // знижка для бажаного техніка
+                        if (site.ProhibitedTechIds.Contains(tech.Id)) return dist + 10_000;
+                        if (site.PreferredTechIds.Contains(tech.Id)) return Math.Max(0, dist - 5_000);
                     }
                     return dist;
                 });
                 routing.SetArcCostEvaluatorOfVehicle(vehicleCostCallbackIndex, t);
             }
 
-            // Виміри
             routing.AddDimension(timeCallbackIndex, 30, 1440, false, "Time");
             routing.AddDimension(distCallbackIndex, 0, 1_000_000, true, "Distance");
             routing.AddDimension(visitCallbackIndex, 0, Math.Max(1, data.ExpandedSites.Count), true, "Visits");
@@ -98,46 +97,25 @@ namespace ObgServices.Services
                 }
             }
 
-            if (EnableSolverLogs)
-            {
-                Console.WriteLine($"[SOLVER][BALANCE] day={day}, totalStops={data.ExpandedSites.Count}, eligibleVehicles={vehiclesWithEligibleSites.Count}, targetActiveVehicles={targetActiveVehicles}, desiredMinStops={desiredMinStops}, desiredMaxStops={desiredMaxStops}, prioritized=[{string.Join(", ", prioritizedVehicles.Select(i => techs[i].Name))}]");
-            }
-
             for (int i = 0; i < data.ExpandedSites.Count; i++)
             {
                 int nodeNumber = siteOffset + i;
                 long nodeIndex = manager.NodeToIndex(nodeNumber);
 
                 if (nodeIndex < 0)
-                {
-                    Console.WriteLine($"⚠️ NodeToIndex({nodeNumber}) = {nodeIndex}, пропускаємо.");
                     continue;
-                }
 
                 var site = data.ExpandedSites[i];
+                timeDimension.CumulVar(nodeIndex).SetRange(data.TimeWindows[nodeNumber][0], data.TimeWindows[nodeNumber][1]);
 
-                // Часові вікна
-                timeDimension.CumulVar(nodeIndex)
-                    .SetRange(data.TimeWindows[nodeNumber][0], data.TimeWindows[nodeNumber][1]);
-
-                // Жорстка фільтрація техніків з урахуванням дня
                 var allowedTechIndexes = Enumerable.Range(0, techs.Count)
                     .Where(t => CanTechServeOnDay(techs[t], site, day))
                     .ToList();
 
-                var allowed = allowedTechIndexes
-                    .Select(t => (long)t)
-                    .ToArray();
-
-                if (EnableSolverLogs)
-                {
-                    Console.WriteLine(
-                        $"[SOLVER][SITE] {site.Id} / {site.Name}: allowedTechs=[{string.Join(", ", allowedTechIndexes.Select(i => techs[i].Name))}]");
-                }
+                var allowed = allowedTechIndexes.Select(t => (long)t).ToArray();
 
                 if (allowed.Length == 0)
                 {
-                    // Жоден технік не підходить — пропускаємо точку
                     routing.AddDisjunction([nodeIndex], 10_000);
                     routing.ActiveVar(nodeIndex).SetValue(0);
                     continue;
@@ -149,7 +127,26 @@ namespace ObgServices.Services
                 routing.AddDisjunction([nodeIndex], 10_000);
             }
 
-            // Синхронізація для TechsNeeded > 1
+            // mandatory/conditional break nodes per vehicle
+            for (int v = 0; v < techs.Count; v++)
+            {
+                int breakNodeNumber = data.BreakNodes.Length > v ? data.BreakNodes[v] : -1;
+                if (breakNodeNumber < 0)
+                    continue;
+
+                long breakIndex = manager.NodeToIndex(breakNodeNumber);
+                if (breakIndex < 0)
+                    continue;
+
+                timeDimension.CumulVar(breakIndex).SetRange(data.TimeWindows[breakNodeNumber][0], data.TimeWindows[breakNodeNumber][1]);
+                routing.VehicleVar(breakIndex).SetValue(v);
+                routing.AddDisjunction([breakIndex], 0);
+
+                var usedVar = solver.MakeIsDifferentCstVar(routing.NextVar(routing.Start(v)), routing.End(v));
+                solver.Add(routing.ActiveVar(breakIndex) == usedVar);
+                visitsDimension.CumulVar(breakIndex).SetMin(1);
+            }
+
             for (int i = 0; i < data.ExpandedSites.Count; i++)
             {
                 long idx1 = manager.NodeToIndex(siteOffset + i);
@@ -163,20 +160,17 @@ namespace ObgServices.Services
                     if (idx2 < 0) continue;
 
                     solver.Add(routing.ActiveVar(idx1) == routing.ActiveVar(idx2));
-                    solver.Add(solver.MakeAbs(
-                        timeDimension.CumulVar(idx1) - timeDimension.CumulVar(idx2)) <= 15);
+                    solver.Add(solver.MakeAbs(timeDimension.CumulVar(idx1) - timeDimension.CumulVar(idx2)) <= 15);
                     solver.Add(routing.VehicleVar(idx1) != routing.VehicleVar(idx2));
                 }
             }
 
-            // Параметри та розв'язання
             var searchParameters = operations_research_constraint_solver.DefaultRoutingSearchParameters();
             searchParameters.FirstSolutionStrategy = FirstSolutionStrategy.Types.Value.PathCheapestArc;
             searchParameters.LocalSearchMetaheuristic = LocalSearchMetaheuristic.Types.Value.SimulatedAnnealing;
             searchParameters.TimeLimit = new Duration { Seconds = 30 };
 
             var solution = routing.SolveWithParameters(searchParameters);
-
             if (solution == null)
             {
                 Console.WriteLine("Рішення не знайдено.");
@@ -184,7 +178,7 @@ namespace ObgServices.Services
             }
 
             Console.WriteLine($"Знайдено рішення. Ціна: {solution.ObjectiveValue()}");
-            return GetRoutes(routing, manager, solution, techs, data.ExpandedSites, siteOffset, day);
+            return GetRoutes(routing, manager, solution, techs, data, day);
         }
 
         public static List<OptimizedRoute> GetRoutes(
@@ -192,8 +186,7 @@ namespace ObgServices.Services
             RoutingIndexManager manager,
             Assignment solution,
             List<Technician> techs,
-            List<ServiceSite> expandedSites,
-            int siteOffset,
+            RoutingDataModel data,
             DayOfWeek dayOfWeek)
         {
             var routes = new List<OptimizedRoute>();
@@ -206,42 +199,62 @@ namespace ObgServices.Services
 
             for (int i = 0; i < techs.Count; i++)
             {
+                long startMinutes = solution.Value(timeDimension.CumulVar(routing.Start(i)));
+                long endMinutes = solution.Value(timeDimension.CumulVar(routing.End(i)));
+
                 var route = new OptimizedRoute
                 {
                     TechnicianId = techs[i].Id,
-                    TechnicianName = techs[i].Name
+                    TechnicianName = techs[i].Name,
+                    RouteStartTime = baseDate.AddMinutes(startMinutes),
+                    RouteEndTime = baseDate.AddMinutes(endMinutes)
                 };
 
                 var index = routing.Start(i);
                 while (!routing.IsEnd(index))
                 {
+                    index = solution.Value(routing.NextVar(index));
+                    if (routing.IsEnd(index))
+                        break;
+
                     int nodeNumber = manager.IndexToNode(index);
-                    int siteIdx = nodeNumber - siteOffset;
+                    long arrivalMinutes = solution.Value(timeDimension.CumulVar(index));
 
-                    if (siteIdx >= 0 && siteIdx < expandedSites.Count)
+                    if (data.BreakNodes.Contains(nodeNumber))
                     {
-                        var site = expandedSites[siteIdx];
-                        long arrivalMinutes = solution.Value(timeDimension.CumulVar(index));
+                        int breakMinutes = techs[i].MinBreakMinutes ?? 0;
+                        route.Stops.Add(new RouteStop
+                        {
+                            SiteId = $"break-{i + 1}",
+                            SiteName = "Break",
+                            ExpectedArrivalTime = baseDate.AddMinutes(arrivalMinutes),
+                            Sequence = route.Stops.Count,
+                            Type = "break",
+                            DurationMinutes = breakMinutes
+                        });
+                        continue;
+                    }
 
+                    int siteIdx = nodeNumber - data.SiteOffset;
+                    if (siteIdx >= 0 && siteIdx < data.ExpandedSites.Count)
+                    {
+                        var site = data.ExpandedSites[siteIdx];
                         route.Stops.Add(new RouteStop
                         {
                             SiteId = site.Id,
                             SiteName = site.Name,
                             ExpectedArrivalTime = baseDate.AddMinutes(arrivalMinutes),
-                            Sequence = route.Stops.Count
+                            Sequence = route.Stops.Count,
+                            Type = "service",
+                            DurationMinutes = site.VisitDuration,
+                            Address = site.Address
                         });
                     }
-
-                    index = solution.Value(routing.NextVar(index));
                 }
 
                 long totalMeters = solution.Value(distDimension.CumulVar(routing.End(i)));
                 route.TotalDistanceKm = totalMeters / 1000.0;
-
-                long startMinutes = solution.Value(timeDimension.CumulVar(routing.Start(i)));
-                long endMinutes = solution.Value(timeDimension.CumulVar(routing.End(i)));
                 route.TotalDurationMinutes = endMinutes - startMinutes;
-
                 routes.Add(route);
             }
 

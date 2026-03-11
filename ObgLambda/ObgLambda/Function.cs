@@ -126,7 +126,7 @@ public class Function
                         continue;
                     }
 
-                    var routingData = await RoutingDataFactory.CreateModel(availableTechs, sitesForDate, geocodingService);
+                    var routingData = await RoutingDataFactory.CreateModel(availableTechs, sitesForDate, geocodingService, targetDate.DayOfWeek);
                     var dailyRoutes = RoutingSolverService.SolveRouting(routingData, availableTechs, targetDate.DayOfWeek);
 
                     if (dailyRoutes != null && dailyRoutes.Any(r => r.Stops.Count > 0))
