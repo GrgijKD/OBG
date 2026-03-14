@@ -240,6 +240,8 @@ namespace ObgServices.Services
 
                 long startMinutes = solution.Value(timeDimension.CumulVar(routing.Start(i)));
                 long endMinutes = solution.Value(timeDimension.CumulVar(routing.End(i)));
+                route.StartTime = baseDate.AddMinutes(startMinutes);
+                route.EndTime = baseDate.AddMinutes(endMinutes);
                 route.TotalDurationMinutes = endMinutes - startMinutes;
 
                 routes.Add(route);

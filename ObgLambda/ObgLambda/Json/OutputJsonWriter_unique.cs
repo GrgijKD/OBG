@@ -49,11 +49,15 @@ namespace ObgLambda.Json
             List<DayDto> days
         );
 
-        public sealed record OutputRoot(
-            Meta meta,
-            List<TechnicianDirectoryItem> technicianDirectory,
-            List<ServiceDirectoryItem> serviceDirectory,
-            List<WeekDto> weeks
+        public sealed record FlatActivityDto(
+            string date,
+            string day_of_week,
+            string start_time,
+            string end_time,
+            string technician_name,
+            string location_name,
+            string? location_to,
+            string activity_type
         );
 
         public sealed record TimetableStopDto(
@@ -207,159 +211,109 @@ namespace ObgLambda.Json
         // Build
         // ------------------------------------------------------------
 
-        private static OutputRoot BuildOutput(
+        private static List<FlatActivityDto> BuildOutput(
             IEnumerable<OptimizedRoute> routes,
             IEnumerable<Technician>? technicians,
             IEnumerable<ServiceSite>? sites
         )
         {
-            var routeList = (routes ?? Array.Empty<OptimizedRoute>()).ToList();
-            var techList = (technicians ?? Array.Empty<Technician>()).ToList();
-            var siteList = (sites ?? Array.Empty<ServiceSite>()).ToList();
+            var routeList = routes?.ToList() ?? new List<OptimizedRoute>();
+            var techById = technicians?.ToDictionary(t => t.Id, t => t, StringComparer.OrdinalIgnoreCase);
+            var siteById = sites?.ToDictionary(s => s.Id, s => s, StringComparer.OrdinalIgnoreCase);
 
-            // Map internal IDs to presentation sequential IDs
-            // tech: trch-1, trch-2, ... in TECH LIST order if provided; otherwise, routes order.
-            var techIdMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            var techDirectory = new List<TechnicianDirectoryItem>();
-
-            IEnumerable<(string InternalId, string Name)> techSource;
-            if (techList.Count > 0)
-            {
-                techSource = techList.Select(t => (t.Id, t.Name));
-            }
-            else
-            {
-                techSource = routeList.Select(r => (r.TechnicianId, string.IsNullOrWhiteSpace(r.TechnicianName) ? r.TechnicianId : r.TechnicianName));
-            }
-
-            var techSeq = 0;
-            foreach (var t in techSource)
-            {
-                if (string.IsNullOrWhiteSpace(t.InternalId))
-                    continue;
-
-                if (techIdMap.ContainsKey(t.InternalId))
-                    continue;
-
-                techSeq++;
-                var outId = $"trch-{techSeq}";
-                techIdMap[t.InternalId] = outId;
-                techDirectory.Add(new TechnicianDirectoryItem(outId, t.Name));
-            }
-
-            // sites: srv-1, srv-2, ... in SITE LIST order if provided; otherwise, first appearance in routes.
-            var siteIdMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            var serviceDirectory = new List<ServiceDirectoryItem>();
-
-            IEnumerable<(string InternalId, string Name)> siteSource;
-            if (siteList.Count > 0)
-            {
-                siteSource = siteList.Select(s => (s.Id, s.Name ?? s.Id));
-            }
-            else
-            {
-                siteSource = routeList
-                    .SelectMany(r => r.Stops ?? new List<RouteStop>())
-                    .Where(s => !string.IsNullOrWhiteSpace(s.SiteId))
-                    .GroupBy(s => s.SiteId)
-                    .Select(g => (g.Key, g.Select(x => x.SiteName).FirstOrDefault(n => !string.IsNullOrWhiteSpace(n)) ?? g.Key));
-            }
-
-            var srvSeq = 0;
-            foreach (var s in siteSource)
-            {
-                if (string.IsNullOrWhiteSpace(s.InternalId))
-                    continue;
-
-                if (siteIdMap.ContainsKey(s.InternalId))
-                    continue;
-
-                srvSeq++;
-                var outId = $"srv-{srvSeq}";
-                siteIdMap[s.InternalId] = outId;
-                serviceDirectory.Add(new ServiceDirectoryItem(outId, s.Name));
-            }
-
-            // Schedule start date: next calendar Monday
+            // Логіка розрахунку DayOffset (залишається без змін)
             var scheduleStart = NextMonday(DateTime.Today);
-
-            // Determine offset between solver dates and desired presentation dates.
-            var minSolverDate = routeList
-                .SelectMany(r => r.Stops ?? new List<RouteStop>())
-                .Select(s => s.ExpectedArrivalTime.Date)
-                .DefaultIfEmpty(scheduleStart.Date)
-                .Min();
-
+            var minSolverDate = routeList.SelectMany(r => r.Stops ?? new List<RouteStop>())
+                .Select(s => s.ExpectedArrivalTime.Date).DefaultIfEmpty(scheduleStart.Date).Min();
             var dayOffset = (scheduleStart.Date - minSolverDate).Days;
 
-            // helper maps
-            var techById = techList.ToDictionary(t => t.Id, t => t, StringComparer.OrdinalIgnoreCase);
-            var siteById = siteList.ToDictionary(s => s.Id, s => s, StringComparer.OrdinalIgnoreCase);
+            var result = new List<FlatActivityDto>();
 
-            // Collect all stop records with shifted dates
-            var stopRecs = new List<(string TechInternalId, DateTime Arrival, RouteStop Stop)>();
-            foreach (var r in routeList)
+            foreach (var route in routeList)
             {
-                foreach (var st in (r.Stops ?? new List<RouteStop>()))
+                if (route.Stops == null || !route.Stops.Any()) continue;
+
+                var technicianName = route.TechnicianName ?? route.TechnicianId;
+                techById.TryGetValue(route.TechnicianId, out var tech);
+
+                string startPointName = tech?.StartsFrom.ToString() ?? "Office";
+                string endPointName = tech?.FinishesAt.ToString() ?? "Office";
+
+                var orderedStops = route.Stops.OrderBy(s => s.Sequence).ToList();
+
+                // From start point to first site
+                var firstStop = orderedStops.First();
+                var routeDepotStart = route.StartTime.AddDays(dayOffset);
+                var firstArrival = firstStop.ExpectedArrivalTime.AddDays(dayOffset);
+
+                result.Add(new FlatActivityDto(
+                    date: firstArrival.ToString("yyyy-MM-dd"),
+                    day_of_week: firstArrival.DayOfWeek.ToString(),
+                    start_time: routeDepotStart.ToString("HH:mm"),
+                    end_time: firstArrival.ToString("HH:mm"),
+                    technician_name: technicianName,
+                    location_name: startPointName,
+                    location_to: firstStop.SiteName,
+                    activity_type: "Commute"
+                ));
+
+                // Cycle for sites
+                for (int i = 0; i < orderedStops.Count; i++)
                 {
-                    var shiftedArrival = st.ExpectedArrivalTime.AddDays(dayOffset);
-                    stopRecs.Add((r.TechnicianId, shiftedArrival, new RouteStop
+                    var currentStop = orderedStops[i];
+                    var arrival = currentStop.ExpectedArrivalTime.AddDays(dayOffset);
+
+                    siteById.TryGetValue(currentStop.SiteId, out var site);
+                    int duration = site?.VisitDuration ?? 0;
+                    var finishTime = arrival.AddMinutes(duration);
+
+                    result.Add(new FlatActivityDto(
+                        date: arrival.ToString("yyyy-MM-dd"),
+                        day_of_week: arrival.DayOfWeek.ToString(),
+                        start_time: arrival.ToString("HH:mm"),
+                        end_time: finishTime.ToString("HH:mm"),
+                        technician_name: technicianName,
+                        location_name: currentStop.SiteName,
+                        location_to: null,
+                        activity_type: site?.RequiredSkill.ToString() ?? "Service"
+                    ));
+
+                    if (i < orderedStops.Count - 1)
                     {
-                        SiteId = st.SiteId,
-                        SiteName = st.SiteName,
-                        ExpectedArrivalTime = shiftedArrival,
-                        Sequence = st.Sequence
-                    }));
+                        // Commute
+                        var nextStop = orderedStops[i + 1];
+                        var nextArrival = nextStop.ExpectedArrivalTime.AddDays(dayOffset);
+
+                        result.Add(new FlatActivityDto(
+                            date: arrival.ToString("yyyy-MM-dd"),
+                            day_of_week: arrival.DayOfWeek.ToString(),
+                            start_time: finishTime.ToString("HH:mm"),
+                            end_time: nextArrival.ToString("HH:mm"),
+                            technician_name: technicianName,
+                            location_name: currentStop.SiteName,
+                            location_to: nextStop.SiteName,
+                            activity_type: "Commute"
+                        ));
+                    }
+                    else
+                    {
+                        // From last site to end point
+                        var routeDepotEnd = route.EndTime.AddDays(dayOffset);
+
+                        result.Add(new FlatActivityDto(
+                            date: arrival.ToString("yyyy-MM-dd"),
+                            day_of_week: arrival.DayOfWeek.ToString(),
+                            start_time: finishTime.ToString("HH:mm"),
+                            end_time: routeDepotEnd.ToString("HH:mm"),
+                            technician_name: technicianName,
+                            location_name: currentStop.SiteName,
+                            location_to: endPointName,
+                            activity_type: "Commute"
+                        ));
+                    }
                 }
             }
-
-            // horizonDays based on service intervals
-            var intervals = siteList.Select(s => s.VisitIntervalDays).Where(d => d > 0).ToList();
-            var horizonDays = ComputeHorizonDays(intervals);
-
-            // Build days => weeks
-            var dayGroups = stopRecs
-                .GroupBy(x => x.Arrival.Date)
-                .OrderBy(g => g.Key)
-                .ToList();
-
-            var dayDtos = new List<DayDto>();
-            foreach (var dg in dayGroups)
-            {
-                var dayStr = dg.Key.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-
-                var routesForDay = dg
-                    .GroupBy(x => x.TechInternalId, StringComparer.OrdinalIgnoreCase)
-                    .OrderBy(g => techIdMap.TryGetValue(g.Key, out var outId) ? outId : g.Key)
-                    .Select(techGroup =>
-                    {
-                        var techInternalId = techGroup.Key;
-                        var outTechId = techIdMap.TryGetValue(techInternalId, out var tid) ? tid : techInternalId;
-
-                        var orderedStops = techGroup
-                            .OrderBy(x => x.Stop.Sequence)
-                            .ThenBy(x => x.Stop.ExpectedArrivalTime)
-                            .Select(x => x.Stop)
-                            .ToList();
-
-                        var stopsOut = BuildStopsForRoute(orderedStops, techInternalId, techById, siteById, siteIdMap);
-
-                        return new RouteDto(outTechId, stopsOut);
-                    })
-                    .ToList();
-
-                dayDtos.Add(new DayDto(dayStr, routesForDay));
-            }
-
-            // Weeks grouping
-            var weeks = BuildWeeks(dayDtos);
-
-            return new OutputRoot(
-                meta: new Meta(scheduleStart.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture), horizonDays),
-                technicianDirectory: techDirectory.OrderBy(t => t.techId).ToList(),
-                serviceDirectory: serviceDirectory.OrderBy(s => s.serviceId).ToList(),
-                weeks: weeks
-            );
+            return result;
         }
 
         private static MasterCalendarRootDto BuildMasterCalendarOutput(
